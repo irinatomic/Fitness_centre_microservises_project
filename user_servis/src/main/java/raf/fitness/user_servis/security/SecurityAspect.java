@@ -1,6 +1,6 @@
 package raf.fitness.user_servis.security;
 
-import com.raf.restdemo.secutiry.service.TokenService;
+import raf.fitness.user_servis.security.service.TokenService;
 import io.jsonwebtoken.Claims;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -27,7 +27,7 @@ public class SecurityAspect {
         this.tokenService = tokenService;
     }
 
-    @Around("@annotation(com.raf.restdemo.secutiry.CheckSecurity)")
+    @Around("@annotation(raf.fitness.user_servis.security.CheckSecurity)")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         //Get method signature
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();

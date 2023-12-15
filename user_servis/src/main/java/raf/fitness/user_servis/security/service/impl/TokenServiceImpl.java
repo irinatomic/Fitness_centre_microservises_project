@@ -1,6 +1,6 @@
 package raf.fitness.user_servis.security.service.impl;
 
-import com.raf.restdemo.secutiry.service.TokenService;
+import raf.fitness.user_servis.security.service.TokenService;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
