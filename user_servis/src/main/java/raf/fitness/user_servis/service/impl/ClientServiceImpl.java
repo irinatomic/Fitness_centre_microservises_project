@@ -39,7 +39,7 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @SneakyThrows // SneakyThrows is used to suppress the compile time exception
     public ClientResponseDto activate(Long id) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         client.setActivated(true);
         return clientMapper.clientToClientResponseDto(client);
     }
@@ -47,14 +47,14 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @SneakyThrows
     public void delete(Long id) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         client.setDeleted(true);
     }
 
     @Override
     @SneakyThrows
     public ClientResponseDto update(Long id, ClientRequestDto clientRequestDto) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
+        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         if(client.getActivated()) {
             client.setEmail(clientRequestDto.getEmail());
             client.setFirstName(clientRequestDto.getFirstName());

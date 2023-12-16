@@ -9,7 +9,7 @@ public interface ManagerService {
 
     ManagerResponseDto activate(Long id);
 
-    ManagerResponseDto update(ManagerRequestDto managerRequestDto);
+    ManagerResponseDto update(Long id, ManagerRequestDto managerRequestDto);
 
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
