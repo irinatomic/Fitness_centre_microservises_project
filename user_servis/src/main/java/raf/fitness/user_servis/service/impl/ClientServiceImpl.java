@@ -70,7 +70,7 @@ public class ClientServiceImpl implements ClientService {
     @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
         // Try to find active user for specified credentials
-        Client client = clientRepository.findClientByUsernameAndActive(tokenRequestDto.getUsername(), true).
+        Client client = clientRepository.findByUsernameAndActive(tokenRequestDto.getUsername(), true).
                 orElseThrow(() -> new NotFoundException(String.format("Client with username: %s not found.", tokenRequestDto.getUsername())));
 
         // Create token payload

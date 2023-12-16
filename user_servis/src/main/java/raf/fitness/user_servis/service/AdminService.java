@@ -5,11 +5,11 @@ import raf.fitness.user_servis.dto.token.*;
 
 public interface AdminService {
 
-    AdminResponseDto update(AdminRequestDto adminResponseDto);
+    AdminResponseDto update(Long id, AdminRequestDto adminRequestDto);
 
-    TokenResponseDto login(TokenRequestDto adminResponseDto);
+    TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
-    AdminResponseDto forbid(TokenRequestDto tokenRequestDto, Long forbiddenId);
+    void forbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole);
 
-    AdminResponseDto unforbid(TokenRequestDto tokenRequestDto, Long forbiddenId);
+    void unforbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole);
 }

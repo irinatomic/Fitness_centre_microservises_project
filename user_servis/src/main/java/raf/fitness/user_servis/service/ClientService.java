@@ -9,9 +9,9 @@ public interface ClientService {
 
     ClientResponseDto activate(Long id);
 
-    void delete(Long id);
-
     ClientResponseDto update(Long id, ClientRequestDto clientRequestDto);
 
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
+
+    void delete(Long id);
 }

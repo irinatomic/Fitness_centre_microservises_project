@@ -16,6 +16,7 @@ public class Client extends User {
     @Column(unique = true)
     private String membershipNumber;
     private Integer trainingsBookedNo;
+    private Boolean forbidden;
 
     public Client() {
         super();

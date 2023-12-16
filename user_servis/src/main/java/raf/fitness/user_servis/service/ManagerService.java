@@ -9,9 +9,9 @@ public interface ManagerService {
 
     ManagerResponseDto activate(Long id);
 
-    ManagerResponseDto delete(Long id);
-
-    ManagerResponseDto update(ManagerUpdateDto managerRequestDto);
+    ManagerResponseDto update(ManagerRequestDto managerRequestDto);
 
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
+
+    void delete(Long id);
 }

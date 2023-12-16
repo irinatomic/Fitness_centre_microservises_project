@@ -1,8 +1,7 @@
 package raf.fitness.user_servis.mapper;
 
 import raf.fitness.user_servis.domain.Client;
-import raf.fitness.user_servis.dto.client.ClientRequestDto;
-import raf.fitness.user_servis.dto.client.ClientResponseDto;
+import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.repository.RoleRepository;
 
 public class ClientMapper {
@@ -21,7 +20,7 @@ public class ClientMapper {
         client.setUsername(dto.getUsername());
         client.setPassword(dto.getPassword());
         // do not know the membershipNumber and trainingsBookedNo
-        client.setRole(roleRepository.findRoleByName("CLIENT").orElse(null));
+        client.setRole(roleRepository.findByName("CLIENT").orElse(null));
         return client;
     }
 
