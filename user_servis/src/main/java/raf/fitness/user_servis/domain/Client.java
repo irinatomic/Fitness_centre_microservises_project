@@ -11,6 +11,8 @@ import javax.persistence.*;
 @Table(name = "Client")
 public class Client extends User {
 
+    @ManyToOne
+    private Role role;
     @Column(unique = true)
     private String membershipNumber;
     private Integer trainingsBookedNo;
