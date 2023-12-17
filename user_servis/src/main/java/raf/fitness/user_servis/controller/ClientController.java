@@ -1,12 +1,13 @@
 package raf.fitness.user_servis.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import raf.fitness.user_servis.dto.client.ClientRequestDto;
-import raf.fitness.user_servis.dto.client.ClientResponseDto;
-import raf.fitness.user_servis.dto.token.TokenRequestDto;
-import raf.fitness.user_servis.dto.token.TokenResponseDto;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import raf.fitness.user_servis.dto.client.*;
+import raf.fitness.user_servis.dto.token.*;
 import raf.fitness.user_servis.service.ClientService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/client")
@@ -18,24 +19,30 @@ public class ClientController {
         this.clientService = clientService;
     }
 
-    ClientResponseDto add(ClientRequestDto clientRequestDto){
-
+    @PostMapping
+    public ResponseEntity<ClientResponseDto> add(@RequestBody @Valid ClientRequestDto clientRequestDto){
+        return new ResponseEntity<>(clientService.add(clientRequestDto), HttpStatus.CREATED);
     }
 
-    ClientResponseDto activate(Long id){
-
+    @PutMapping("/activate")
+    public ResponseEntity<ClientResponseDto> activate(@RequestParam Long id){
+        return new ResponseEntity<>(clientService.activate(id), HttpStatus.OK);
     }
 
-    ClientResponseDto update(Long id, ClientRequestDto clientRequestDto){
-
+    @PutMapping("/{id}")
+    public ResponseEntity<ClientResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid ClientRequestDto clientRequestDto){
+        return new ResponseEntity<>(clientService.update(id, clientRequestDto), HttpStatus.OK);
     }
 
-    TokenResponseDto login(TokenRequestDto tokenRequestDto){
-
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid TokenRequestDto tokenRequestDto){
+        return new ResponseEntity<>(clientService.login(tokenRequestDto), HttpStatus.OK);
     }
 
-    void delete(Long id){
-
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long id){
+        clientService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
 }
