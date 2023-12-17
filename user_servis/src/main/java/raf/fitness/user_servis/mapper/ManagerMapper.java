@@ -1,10 +1,12 @@
 package raf.fitness.user_servis.mapper;
 
+import org.springframework.stereotype.Component;
 import raf.fitness.user_servis.domain.Manager;
 import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
 import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
 import raf.fitness.user_servis.repository.RoleRepository;
 
+@Component
 public class ManagerMapper {
 
     private RoleRepository roleRepository;

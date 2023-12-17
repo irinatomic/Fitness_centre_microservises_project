@@ -1,9 +1,11 @@
 package raf.fitness.user_servis.mapper;
 
+import org.springframework.stereotype.Component;
 import raf.fitness.user_servis.domain.Client;
 import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.repository.RoleRepository;
 
+@Component
 public class ClientMapper {
 
     private RoleRepository roleRepository;
