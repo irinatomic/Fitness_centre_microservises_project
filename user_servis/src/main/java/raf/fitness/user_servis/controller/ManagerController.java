@@ -1,12 +1,16 @@
 package raf.fitness.user_servis.controller;
 
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
-import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
-import raf.fitness.user_servis.dto.token.TokenRequestDto;
-import raf.fitness.user_servis.dto.token.TokenResponseDto;
+import io.swagger.annotations.ApiImplicitParam;
+import io.swagger.annotations.ApiImplicitParams;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import raf.fitness.user_servis.dto.manager.*;
+import raf.fitness.user_servis.dto.token.*;
 import raf.fitness.user_servis.service.ManagerService;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/manager")
@@ -18,28 +22,48 @@ public class ManagerController {
         this.managerService = managerService;
     }
 
-    ManagerResponseDto add(ManagerRequestDto managerRequestDto){
-
+    @ApiOperation(value = "Add a new manager", notes = "Creates a new manager.")
+    @PostMapping("/")
+    public ResponseEntity<ManagerResponseDto> add(@RequestBody @Valid ManagerRequestDto managerRequestDto){
+        return new ResponseEntity<>(managerService.add(managerRequestDto), HttpStatus.CREATED);
     }
 
-    ManagerResponseDto activate(Long id){
-
+    @ApiOperation(value = "Activate manager by ID", notes = "Activates a manager with the provided ID.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "ID of the manager to activate", required = true, dataType = "Long", paramType = "query")
+    })
+    @PutMapping("/activate")
+    public ResponseEntity<ManagerResponseDto> activate(@RequestParam Long id){
+        return new ResponseEntity<>(managerService.activate(id), HttpStatus.OK);
     }
 
-    ManagerResponseDto update(Long id, ManagerRequestDto managerRequestDto){
-
+    @ApiOperation(value = "Update manager by ID", notes = "Updates manager details based on provided ID.")
+    @PutMapping("/{id}")
+    public ResponseEntity<ManagerResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid ManagerRequestDto managerRequestDto){
+        return new ResponseEntity<>(managerService.update(id, managerRequestDto), HttpStatus.OK);
     }
 
-    TokenResponseDto login(TokenRequestDto tokenRequestDto){
-
+    @ApiOperation(value = "Manager login", notes = "Authenticates and logs in as a manager.")
+    @PostMapping("/login")
+    public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid TokenRequestDto tokenRequestDto){
+        return new ResponseEntity<>(managerService.login(tokenRequestDto), HttpStatus.OK);
     }
 
-    void delete(Long id){
-
+    @ApiOperation(value = "Delete manager by ID", notes = "Deletes a manager with the provided ID.")
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> delete(@PathVariable("id") Long id){
+        managerService.delete(id);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    void giveFreeTraining(Long id, ManagerRequestDto managerRequestDto) {
-
+    @ApiOperation(value = "Give free training", notes = "Provides free training to a manager with the specified ID.")
+    @ApiImplicitParams({
+            @ApiImplicitParam(name = "id", value = "ID of the manager to give free training", required = true, dataType = "Long", paramType = "query")
+    })
+    @PostMapping("/give-free")
+    public ResponseEntity<?> giveFreeTraining(@RequestParam Long id, @RequestBody @Valid ManagerRequestDto managerRequestDto) {
+        managerService.giveFreeTraining(id, managerRequestDto);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
-
 }
+
