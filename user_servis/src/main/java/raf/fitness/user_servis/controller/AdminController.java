@@ -40,8 +40,8 @@ public class AdminController {
     })
     @PutMapping("/forbid")
     @CheckSecurity(roles = {"ADMIN"})
-    public ResponseEntity<?> forbid(@RequestBody @Valid TokenRequestDto tokenRequestDto, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
-        adminService.forbid(tokenRequestDto, forbiddenId, forbiddenRole);
+    public ResponseEntity<?> forbid(@RequestHeader("Authorization") String authorization, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
+        adminService.forbid(forbiddenId, forbiddenRole);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -52,9 +52,9 @@ public class AdminController {
     })
     @PutMapping("/unforbid")
     @CheckSecurity(roles = {"ADMIN"})
-    public ResponseEntity<?> unforbid(@RequestBody @Valid TokenRequestDto tokenRequestDto, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
+    public ResponseEntity<?> unforbid(@RequestHeader("Authorization") String authorization, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
         // Service returns void
-        adminService.unforbid(tokenRequestDto, forbiddenId, forbiddenRole);
+        adminService.unforbid(forbiddenId, forbiddenRole);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

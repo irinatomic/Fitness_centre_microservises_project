@@ -6,6 +6,8 @@ import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
 import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
 import raf.fitness.user_servis.repository.RoleRepository;
 
+import java.time.LocalDate;
+
 @Component
 public class ManagerMapper {
 
@@ -15,6 +17,20 @@ public class ManagerMapper {
         this.roleRepository = roleRepository;
     }
 
+    // WHEN CREATING A MANAGER
+    public Manager managerCreateRequestDtoToManager(ManagerRequestDto dto) {
+        Manager manager = new Manager();
+        manager.setEmail(dto.getEmail());
+        manager.setFirstName(dto.getFirstName());
+        manager.setLastName(dto.getLastName());
+        manager.setUsername(dto.getUsername());
+        manager.setPassword(dto.getPassword());
+        manager.setPhoneNumber(dto.getPhoneNumber());
+        manager.setDateOfEmployment(LocalDate.now());
+        manager.setRole(roleRepository.findByName("MANAGER").orElse(null));
+        return manager;
+    }
+
     public Manager managerRequestDtoToManager(ManagerRequestDto dto) {
         Manager manager = new Manager();
         manager.setEmail(dto.getEmail());
@@ -22,8 +38,9 @@ public class ManagerMapper {
         manager.setLastName(dto.getLastName());
         manager.setUsername(dto.getUsername());
         manager.setPassword(dto.getPassword());
-        manager.setDateOfEmployment(dto.getDateOfEmployment());
         manager.setPhoneNumber(dto.getPhoneNumber());
+
+        // CANNOT CHANGE DATE OF EMPLOYMENT
         manager.setRole(roleRepository.findByName("MANAGER").orElse(null));
         return manager;
     }

@@ -3,10 +3,8 @@ package raf.fitness.user_servis.runner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import raf.fitness.user_servis.domain.Admin;
-import raf.fitness.user_servis.domain.Role;
-import raf.fitness.user_servis.repository.AdminRepository;
-import raf.fitness.user_servis.repository.RoleRepository;
+import raf.fitness.user_servis.domain.*;
+import raf.fitness.user_servis.repository.*;
 
 @Profile({"default"})
 @Component
@@ -14,10 +12,14 @@ public class TestDataRunner implements CommandLineRunner {
 
     private RoleRepository roleRepository;
     private AdminRepository adminRepository;
+    private ManagerRepository managerRepository;
+    private ClientRepository clientRepository;
 
-    public TestDataRunner(RoleRepository roleRepository, AdminRepository adminRepository) {
+    public TestDataRunner(RoleRepository roleRepository, AdminRepository adminRepository, ManagerRepository managerRepository, ClientRepository clientRepository){
         this.roleRepository = roleRepository;
         this.adminRepository = adminRepository;
+        this.managerRepository = managerRepository;
+        this.clientRepository = clientRepository;
     }
 
     @Override
@@ -36,6 +38,22 @@ public class TestDataRunner implements CommandLineRunner {
         admin.setActivated(true);
         adminRepository.save(admin);
 
+        // Manager 1
+        Manager manager1 = new Manager(managerRole, "manager_one@email.com", "MName_one", "MSurname_one", "manager1", "password", "0123456789", "Company_one");
+        managerRepository.save(manager1);
+
+        Manager manager2 = new Manager(managerRole, "manager_two@email.com", "MName_two", "MSurname_two", "manager2", "password", "0123456789", "Company_two");
+        managerRepository.save(manager2);
+
+        // Client 1
+        Client client1 = new Client(clientRole, "client_one@email.com", "CName_one", "CSurname_one", "client1", "password", "0123456789", "2023-1");
+        client1.setActivated(true);
+        clientRepository.save(client1);
+
+        // Client 2
+        Client client2 = new Client(clientRole, "client_two@email.com", "CName_two", "CSurname_two", "client2", "password", "0123456789", "2023-2");
+        client2.setActivated(true);
+        clientRepository.save(client2);
     }
 }
 

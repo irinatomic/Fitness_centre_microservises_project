@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.fitness.user_servis.dto.manager.*;
 import raf.fitness.user_servis.dto.token.*;
+import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ManagerService;
 
 import javax.validation.Valid;
@@ -61,8 +62,9 @@ public class ManagerController {
             @ApiImplicitParam(name = "id", value = "ID of the manager to give free training", required = true, dataType = "Long", paramType = "query")
     })
     @PostMapping("/give-free")
-    public ResponseEntity<?> giveFreeTraining(@RequestParam Long id, @RequestBody @Valid ManagerRequestDto managerRequestDto) {
-        managerService.giveFreeTraining(id, managerRequestDto);
+    @CheckSecurity(roles = {"MANAGER"})
+    public ResponseEntity<?> giveFreeTraining(@RequestParam Long id, @RequestHeader("Authorization") String authorization) {
+        managerService.giveFreeTraining(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

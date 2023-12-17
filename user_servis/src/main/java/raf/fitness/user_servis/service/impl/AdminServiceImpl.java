@@ -13,7 +13,10 @@ import raf.fitness.user_servis.mapper.AdminMapper;
 import raf.fitness.user_servis.security.service.TokenService;
 import raf.fitness.user_servis.service.AdminService;
 
+import javax.transaction.Transactional;
+
 @Service
+@Transactional
 public class AdminServiceImpl implements AdminService {
 
     private TokenService tokenService;
@@ -63,10 +66,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @SneakyThrows
-    public void forbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole) {
-        // Try to find admin for specified credentials (all are active)
-        Admin admin = adminRepository.findByUsername(tokenRequestDto.getUsername()).orElseThrow(() -> new NotFoundException("Admin not found."));
-
+    public void forbid(Long forbiddenId, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
             Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
             toForbid.setForbidden(true);
@@ -82,10 +82,7 @@ public class AdminServiceImpl implements AdminService {
 
     @Override
     @SneakyThrows
-    public void unforbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole) {
-        // Try to find admin for specified credentials (all are active)
-        Admin admin = adminRepository.findByUsername(tokenRequestDto.getUsername()).orElseThrow(() -> new NotFoundException("Admin not found."));
-
+    public void unforbid(Long forbiddenId, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
             Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
             toForbid.setForbidden(false);

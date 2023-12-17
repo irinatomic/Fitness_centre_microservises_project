@@ -9,7 +9,7 @@ public interface AdminService {
 
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
-    void forbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole);
+    void forbid(Long forbiddenId, String forbiddenRole);
 
-    void unforbid(TokenRequestDto tokenRequestDto, Long forbiddenId, String forbiddenRole);
+    void unforbid(Long forbiddenId, String forbiddenRole);
 }

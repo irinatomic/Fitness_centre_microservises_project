@@ -20,10 +20,10 @@ public class Manager extends User {
         super();
     }
 
-    public Manager(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber, String companyName, LocalDate dateOfEmployment, Boolean forbidden) {
+    public Manager(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber, String companyName) {
         super(role, email, firstName, lastName, username, password, phoneNumber);
         this.companyName = companyName;
-        this.dateOfEmployment = dateOfEmployment;
-        this.forbidden = forbidden;
+        this.dateOfEmployment = LocalDate.now();
+        this.forbidden = false;
     }
 }

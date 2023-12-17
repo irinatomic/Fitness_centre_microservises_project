@@ -14,6 +14,24 @@ public class ClientMapper {
         this.roleRepository = roleRepository;
     }
 
+    // WHEN CREATING A CLIENT
+    public Client clientCreateRequestDtoToClient(ClientRequestDto dto) {
+        Client client = new Client();
+        client.setEmail(dto.getEmail());
+        client.setFirstName(dto.getFirstName());
+        client.setLastName(dto.getLastName());
+        client.setUsername(dto.getUsername());
+        client.setPassword(dto.getPassword());
+        client.setPhoneNumber(dto.getPhoneNumber());
+        client.setMembershipNumber("2023-" + System.currentTimeMillis());
+        client.setTrainingsBookedNo(0);
+        client.setActivated(false);
+        client.setDeleted(false);
+        client.setForbidden(false);
+        client.setRole(roleRepository.findByName("CLIENT").orElse(null));
+        return client;
+    }
+
     public Client clientRequestDtoToClient(ClientRequestDto dto) {
         Client client = new Client();
         client.setEmail(dto.getEmail());
@@ -21,7 +39,9 @@ public class ClientMapper {
         client.setLastName(dto.getLastName());
         client.setUsername(dto.getUsername());
         client.setPassword(dto.getPassword());
-        // do not know the membershipNumber and trainingsBookedNo
+        client.setPhoneNumber(dto.getPhoneNumber());
+
+        // CANNOT CHANGE MEMBERSHIP NUMBER AND TRAININGS BOOKED NO
         client.setRole(roleRepository.findByName("CLIENT").orElse(null));
         return client;
     }

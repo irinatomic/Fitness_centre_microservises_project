@@ -20,9 +20,10 @@ public class Client extends User {
         super();
     }
 
-    public Client(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber, String membershipNumber, Integer trainingsBookedNo) {
+    public Client(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber, String membershipNumber) {
         super(role, email, firstName, lastName, username, password, phoneNumber);
         this.membershipNumber = membershipNumber;
-        this.trainingsBookedNo = trainingsBookedNo;
+        this.trainingsBookedNo = 0;
+        this.forbidden = false;
     }
 }

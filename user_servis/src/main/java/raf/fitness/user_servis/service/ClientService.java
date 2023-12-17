@@ -9,9 +9,12 @@ public interface ClientService {
 
     ClientResponseDto activate(Long id);
 
+    // Todo: ne moze ako nije loggedin
     ClientResponseDto update(Long id, ClientRequestDto clientRequestDto);
 
+    // Todo: boolean loggedIn && ne moze ako je forbidden
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
+    // Todo: ne moze ako nije loggedin
     void delete(Long id);
 }

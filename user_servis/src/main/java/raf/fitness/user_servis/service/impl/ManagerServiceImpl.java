@@ -4,6 +4,7 @@ import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import javassist.NotFoundException;
 import lombok.SneakyThrows;
+import org.springframework.stereotype.Service;
 import raf.fitness.user_servis.domain.Manager;
 import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
 import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
@@ -14,6 +15,10 @@ import raf.fitness.user_servis.repository.ManagerRepository;
 import raf.fitness.user_servis.security.service.TokenService;
 import raf.fitness.user_servis.service.ManagerService;
 
+import javax.transaction.Transactional;
+
+@Service
+@Transactional
 public class ManagerServiceImpl implements ManagerService {
 
     private TokenService tokenService;
@@ -79,7 +84,7 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    public void giveFreeTraining(Long id, ManagerRequestDto managerRequestDto) {
+    public void giveFreeTraining(Long id) {
         // todo - komunikacija sa 3. servisom
     }
 }
