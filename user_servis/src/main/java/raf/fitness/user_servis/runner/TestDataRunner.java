@@ -32,7 +32,7 @@ public class TestDataRunner implements CommandLineRunner {
          roleRepository.save(clientRole);
 
          // Admin
-        Admin admin = new Admin("admin@email.com", "Admin", "Admin", "admin", "admin123", "01112345", adminRole);
+        Admin admin = new Admin(adminRole, "admin@email.com", "Admin", "Admin", "admin", "admin123", "01112345");
         admin.setActivated(true);
         adminRepository.save(admin);
 

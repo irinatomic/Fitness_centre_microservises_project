@@ -51,7 +51,7 @@ public class ManagerServiceImpl implements ManagerService {
             manager.setLastName(managerRequestDto.getLastName());
             manager.setUsername(managerRequestDto.getUsername());
             manager.setPassword(managerRequestDto.getPassword());
-            manager.setDateOfEmployment(managerRequestDto.getDateOfEmployment());
+            manager.setPhoneNumber(managerRequestDto.getPhoneNumber());
         }
         return managerMapper.managerToManagerResponseDto(manager);
     }
@@ -76,5 +76,10 @@ public class ManagerServiceImpl implements ManagerService {
     public void delete(Long id) {
         Manager manager = managerRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
         manager.setDeleted(true);
+    }
+
+    @Override
+    public void giveFreeTraining(Long id, ManagerRequestDto managerRequestDto) {
+        // todo - komunikacija sa 3. servisom
     }
 }

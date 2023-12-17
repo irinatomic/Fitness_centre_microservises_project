@@ -13,6 +13,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    private Role role;
     private Boolean activated;
     private Boolean deleted;
     private String email;
@@ -25,9 +28,10 @@ public class User {
 
     public User() {}
 
-    public User(String email, String firstName, String lastName, String username, String password, String phoneNumber) {
+    public User(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber) {
         this.activated = false;
         this.deleted = false;
+        this.role = role;
         this.email = email;
         this.firstName = firstName;
         this.lastName = lastName;

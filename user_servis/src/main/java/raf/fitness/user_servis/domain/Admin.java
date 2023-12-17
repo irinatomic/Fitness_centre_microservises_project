@@ -11,15 +11,11 @@ import javax.persistence.*;
 @Table(name = "Admin")
 public class Admin extends User {
 
-    @ManyToOne
-    private Role role;
-
     public Admin() {
         super();
     }
 
-    public Admin(String email, String firstName, String lastName, String username, String password, String phoneNumber, Role role) {
-        super(email, firstName, lastName, username, password, phoneNumber);
-        this.role = role;
+    public Admin(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber) {
+        super(role, email, firstName, lastName, username, password, phoneNumber);
     }
 }

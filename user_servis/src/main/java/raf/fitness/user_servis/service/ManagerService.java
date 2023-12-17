@@ -14,4 +14,6 @@ public interface ManagerService {
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
     void delete(Long id);
+
+    void giveFreeTraining(Long id, ManagerRequestDto managerRequestDto); // client id
 }

@@ -23,6 +23,7 @@ public class ManagerMapper {
         manager.setUsername(dto.getUsername());
         manager.setPassword(dto.getPassword());
         manager.setDateOfEmployment(dto.getDateOfEmployment());
+        manager.setPhoneNumber(dto.getPhoneNumber());
         manager.setRole(roleRepository.findByName("MANAGER").orElse(null));
         return manager;
     }
