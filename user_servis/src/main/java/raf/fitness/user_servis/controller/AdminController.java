@@ -33,6 +33,13 @@ public class AdminController {
         return new ResponseEntity<>(adminService.login(tokenRequestDto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Logout as an admin")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam Long id) {
+        adminService.logout(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Forbid access for a user with a specific role")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "forbiddenId", value = "ID of the user to forbid", required = true, dataType = "Long", paramType = "query"),

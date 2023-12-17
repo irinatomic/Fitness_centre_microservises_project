@@ -27,6 +27,10 @@ public class ManagerMapper {
         manager.setPassword(dto.getPassword());
         manager.setPhoneNumber(dto.getPhoneNumber());
         manager.setDateOfEmployment(LocalDate.now());
+        manager.setActivated(false);
+        manager.setDeleted(false);
+        manager.setForbidden(false);
+        manager.setLoggedin(false);
         manager.setRole(roleRepository.findByName("MANAGER").orElse(null));
         return manager;
     }
@@ -39,7 +43,6 @@ public class ManagerMapper {
         manager.setUsername(dto.getUsername());
         manager.setPassword(dto.getPassword());
         manager.setPhoneNumber(dto.getPhoneNumber());
-
         // CANNOT CHANGE DATE OF EMPLOYMENT
         manager.setRole(roleRepository.findByName("MANAGER").orElse(null));
         return manager;

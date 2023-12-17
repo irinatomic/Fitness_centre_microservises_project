@@ -22,6 +22,7 @@ public class AdminMapper {
         admin.setUsername(dto.getUsername());
         admin.setPassword(dto.getPassword());
         admin.setPhoneNumber(dto.getPhoneNumber());
+        admin.setLoggedin(false);
         admin.setRole(roleRepository.findByName("ADMIN").orElse(null));
         return admin;
     }

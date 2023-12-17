@@ -9,17 +9,14 @@ public interface ManagerService {
 
     ManagerResponseDto activate(Long id);
 
-    // Todo: ne moze ako nije loggedin
     ManagerResponseDto update(Long id, ManagerRequestDto managerRequestDto);
 
-    // Todo: boolean loggedIn && ne moze ako je forbidden
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
-    // Todo: ne moze ako nije loggedin
+    void logout(Long id);
+
     void delete(Long id);
 
-    // Todo: ne moze ako nije loggedin
     void giveFreeTraining(Long id); // client id
 
-    //Todo: logOut metoda
 }

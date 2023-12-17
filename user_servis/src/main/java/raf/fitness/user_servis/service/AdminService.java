@@ -9,6 +9,8 @@ public interface AdminService {
 
     TokenResponseDto login(TokenRequestDto tokenRequestDto);
 
+    void logout(Long id);
+
     void forbid(Long forbiddenId, String forbiddenRole);
 
     void unforbid(Long forbiddenId, String forbiddenRole);

@@ -47,14 +47,14 @@ public class ClientServiceImpl implements ClientService {
     @Override
     @SneakyThrows
     public void delete(Long id) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
+        Client client = clientRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         client.setDeleted(true);
     }
 
     @Override
     @SneakyThrows
     public ClientResponseDto update(Long id, ClientRequestDto clientRequestDto) {
-        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
+        Client client = clientRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         if(client.getActivated()) {
             client.setEmail(clientRequestDto.getEmail());
             client.setFirstName(clientRequestDto.getFirstName());
@@ -70,9 +70,10 @@ public class ClientServiceImpl implements ClientService {
     @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
         // Try to find active user for specified credentials
-        Client client = clientRepository.findByUsernameAndActivated(tokenRequestDto.getUsername(), true).
+        Client client = clientRepository.findByUsernameAndActivatedAndForbidden(tokenRequestDto.getUsername(), true, false).
                 orElseThrow(() -> new NotFoundException(String.format("Client with username: %s not found.", tokenRequestDto.getUsername())));
 
+        client.setLoggedin(true);
         // Create token payload
         Claims claims = Jwts.claims();
         claims.put("id", client.getId());
@@ -80,5 +81,13 @@ public class ClientServiceImpl implements ClientService {
 
         //Generate token
         return new TokenResponseDto(tokenService.generate(claims));
+    }
+
+    @Override
+    @SneakyThrows
+    public void logout(Long id) {
+        Client client = clientRepository.findByIdAndLoggedin(id, true).
+                orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
+        client.setLoggedin(false);
     }
 }

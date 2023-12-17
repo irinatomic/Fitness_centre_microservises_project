@@ -36,7 +36,7 @@ public class AdminServiceImpl implements AdminService {
     @Override
     @SneakyThrows
     public AdminResponseDto update(Long id, AdminRequestDto adminRequestDto) {
-        Admin admin = adminRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
+        Admin admin = adminRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
         if(admin.getActivated()) {
             admin.setEmail(adminRequestDto.getEmail());
             admin.setFirstName(adminRequestDto.getFirstName());
@@ -55,6 +55,7 @@ public class AdminServiceImpl implements AdminService {
         // Try to find admin for specified credentials (all are active)
         Admin admin = adminRepository.findByUsername(tokenRequestDto.getUsername()).orElseThrow(() -> new NotFoundException("Admin not found."));
 
+        admin.setLoggedin(true);
         //Create token payload
         Claims claims = Jwts.claims();
         claims.put("id", admin.getId());
@@ -62,6 +63,14 @@ public class AdminServiceImpl implements AdminService {
 
         //Generate token
         return new TokenResponseDto(tokenService.generate(claims));
+    }
+
+    @Override
+    @SneakyThrows
+    public void logout(Long id) {
+        Admin admin = adminRepository.findByIdAndLoggedin(id, true).
+                orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
+        admin.setLoggedin(false);
     }
 
     @Override

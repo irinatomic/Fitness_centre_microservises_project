@@ -11,5 +11,7 @@ public interface ClientRepository extends JpaRepository<Client, Long> {
 
     Optional<Client> findByUsername(String username);
 
-    Optional<Client> findByUsernameAndActivated(String username, boolean active);
+    Optional<Client> findByUsernameAndActivatedAndForbidden(String username, boolean active, boolean forbidden);
+
+    Optional<Client> findByIdAndLoggedin(Long id, boolean loggedin);
 }

@@ -5,6 +5,7 @@ import io.jsonwebtoken.Jwts;
 import javassist.NotFoundException;
 import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
+import raf.fitness.user_servis.domain.Client;
 import raf.fitness.user_servis.domain.Manager;
 import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
 import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
@@ -49,7 +50,7 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     @SneakyThrows
     public ManagerResponseDto update(Long id, ManagerRequestDto managerRequestDto) {
-        Manager manager = managerRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
+        Manager manager = managerRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
         if(manager.getActivated()) {
             manager.setEmail(managerRequestDto.getEmail());
             manager.setFirstName(managerRequestDto.getFirstName());
@@ -64,10 +65,12 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
-        Manager manager = managerRepository.findByUsername(tokenRequestDto.getUsername()).
-                orElseThrow(() -> new NotFoundException(String.format("Manager with username: %s not found.", tokenRequestDto.getUsername())));
+        String username = tokenRequestDto.getUsername();
+        Manager manager = managerRepository.findByUsernameAndActivatedAndForbidden(username, true, false).
+                orElseThrow(() -> new NotFoundException(String.format("Manager with username: %s not found.", username)));
 
         // Create token payload
+        manager.setLoggedin(true);
         Claims claims = Jwts.claims();
         claims.put("id", manager.getId());
         claims.put("role", manager.getRole().getName());
@@ -78,8 +81,16 @@ public class ManagerServiceImpl implements ManagerService {
 
     @Override
     @SneakyThrows
+    public void logout(Long id) {
+        Manager manager = managerRepository.findByIdAndLoggedin(id, true).
+                orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
+        manager.setLoggedin(false);
+    }
+
+    @Override
+    @SneakyThrows
     public void delete(Long id) {
-        Manager manager = managerRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
+        Manager manager = managerRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
         manager.setDeleted(true);
     }
 

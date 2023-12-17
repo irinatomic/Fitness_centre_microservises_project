@@ -54,6 +54,13 @@ public class ClientController {
         return new ResponseEntity<>(clientService.login(tokenRequestDto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Logout as an client")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam Long id) {
+        clientService.logout(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Delete client by ID", notes = "Deletes a client with the provided ID.")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "id", value = "ID of the client to delete", required = true, dataType = "long", paramType = "path")

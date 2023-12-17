@@ -50,6 +50,13 @@ public class ManagerController {
         return new ResponseEntity<>(managerService.login(tokenRequestDto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Logout as an manager")
+    @PostMapping("/logout")
+    public ResponseEntity<?> logout(@RequestParam Long id) {
+        managerService.logout(id);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Delete manager by ID", notes = "Deletes a manager with the provided ID.")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> delete(@PathVariable("id") Long id){
