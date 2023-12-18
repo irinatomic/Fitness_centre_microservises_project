@@ -24,4 +24,6 @@ public class ManagerRequestDto {
     private String password;
     @Pattern(regexp="[0-9]{10}")
     private String phoneNumber;
+    @NotBlank
+    private String companyName;
 }

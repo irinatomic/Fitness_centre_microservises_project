@@ -2,15 +2,11 @@ package raf.fitness.user_servis.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import javassist.NotFoundException;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
-import raf.fitness.user_servis.domain.Client;
 import raf.fitness.user_servis.domain.Manager;
-import raf.fitness.user_servis.dto.manager.ManagerRequestDto;
-import raf.fitness.user_servis.dto.manager.ManagerResponseDto;
-import raf.fitness.user_servis.dto.token.TokenRequestDto;
-import raf.fitness.user_servis.dto.token.TokenResponseDto;
+import raf.fitness.user_servis.dto.manager.*;
+import raf.fitness.user_servis.dto.token.*;
+import raf.fitness.user_servis.exception.NotFoundException;
 import raf.fitness.user_servis.mapper.ManagerMapper;
 import raf.fitness.user_servis.repository.ManagerRepository;
 import raf.fitness.user_servis.security.service.TokenService;
@@ -34,13 +30,12 @@ public class ManagerServiceImpl implements ManagerService {
 
     @Override
     public ManagerResponseDto add(ManagerRequestDto managerRequestDto) {
-        Manager manager = managerMapper.managerRequestDtoToManager(managerRequestDto);
+        Manager manager = managerMapper.managerCreateRequestDtoToManager(managerRequestDto);
         managerRepository.save(manager);
         return managerMapper.managerToManagerResponseDto(manager);
     }
 
     @Override
-    @SneakyThrows
     public ManagerResponseDto activate(Long id) {
         Manager manager = managerRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
         manager.setActivated(true);
@@ -48,7 +43,6 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    @SneakyThrows
     public ManagerResponseDto update(Long id, ManagerRequestDto managerRequestDto) {
         Manager manager = managerRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
         if(manager.getActivated()) {
@@ -63,7 +57,6 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
         String username = tokenRequestDto.getUsername();
         Manager manager = managerRepository.findByUsernameAndActivatedAndForbidden(username, true, false).
@@ -80,7 +73,6 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    @SneakyThrows
     public void logout(Long id) {
         Manager manager = managerRepository.findByIdAndLoggedin(id, true).
                 orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
@@ -88,10 +80,8 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
-    @SneakyThrows
     public void delete(Long id) {
-        Manager manager = managerRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Manager with id: %d not found.", id)));
-        manager.setDeleted(true);
+        managerRepository.deleteById(id);
     }
 
     @Override

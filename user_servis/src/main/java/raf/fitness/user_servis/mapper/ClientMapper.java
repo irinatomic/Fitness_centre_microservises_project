@@ -26,7 +26,6 @@ public class ClientMapper {
         client.setMembershipNumber("2023-" + System.currentTimeMillis());
         client.setTrainingsBookedNo(0);
         client.setActivated(false);
-        client.setDeleted(false);
         client.setForbidden(false);
         client.setLoggedin(false);
         client.setRole(roleRepository.findByName("CLIENT").orElse(null));

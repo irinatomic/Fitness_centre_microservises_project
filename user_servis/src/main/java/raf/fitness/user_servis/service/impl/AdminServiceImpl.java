@@ -2,12 +2,11 @@ package raf.fitness.user_servis.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import javassist.NotFoundException;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import raf.fitness.user_servis.domain.*;
 import raf.fitness.user_servis.dto.admin.*;
 import raf.fitness.user_servis.dto.token.*;
+import raf.fitness.user_servis.exception.NotFoundException;
 import raf.fitness.user_servis.repository.*;
 import raf.fitness.user_servis.mapper.AdminMapper;
 import raf.fitness.user_servis.security.service.TokenService;
@@ -34,7 +33,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @SneakyThrows
     public AdminResponseDto update(Long id, AdminRequestDto adminRequestDto) {
         Admin admin = adminRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
         if(admin.getActivated()) {
@@ -50,7 +48,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
         // Try to find admin for specified credentials (all are active)
         Admin admin = adminRepository.findByUsername(tokenRequestDto.getUsername()).orElseThrow(() -> new NotFoundException("Admin not found."));
@@ -66,7 +63,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @SneakyThrows
     public void logout(Long id) {
         Admin admin = adminRepository.findByIdAndLoggedin(id, true).
                 orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
@@ -74,7 +70,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @SneakyThrows
     public void forbid(Long forbiddenId, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
             Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
@@ -90,7 +85,6 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    @SneakyThrows
     public void unforbid(Long forbiddenId, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
             Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));

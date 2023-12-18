@@ -40,9 +40,11 @@ public class TestDataRunner implements CommandLineRunner {
 
         // Manager 1
         Manager manager1 = new Manager(managerRole, "manager_one@email.com", "MName_one", "MSurname_one", "manager1", "password", "0123456789", "Company_one");
+        manager1.setActivated(true);
         managerRepository.save(manager1);
 
         Manager manager2 = new Manager(managerRole, "manager_two@email.com", "MName_two", "MSurname_two", "manager2", "password", "0123456789", "Company_two");
+        manager2.setActivated(true);
         managerRepository.save(manager2);
 
         // Client 1

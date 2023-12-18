@@ -27,8 +27,8 @@ public class ManagerMapper {
         manager.setPassword(dto.getPassword());
         manager.setPhoneNumber(dto.getPhoneNumber());
         manager.setDateOfEmployment(LocalDate.now());
+        manager.setCompanyName(dto.getCompanyName());
         manager.setActivated(false);
-        manager.setDeleted(false);
         manager.setForbidden(false);
         manager.setLoggedin(false);
         manager.setRole(roleRepository.findByName("MANAGER").orElse(null));

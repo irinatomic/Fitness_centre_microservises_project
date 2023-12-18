@@ -17,7 +17,7 @@ public class User {
     @ManyToOne
     private Role role;
     private Boolean activated;
-    private Boolean deleted;
+    private Boolean loggedin;
     private String email;
     private String firstName;
     private String lastName;
@@ -25,13 +25,11 @@ public class User {
     private String username;
     private String password;
     private String phoneNumber;
-    private Boolean loggedin;
 
     public User() {}
 
     public User(Role role, String email, String firstName, String lastName, String username, String password, String phoneNumber) {
         this.activated = false;
-        this.deleted = false;
         this.loggedin = false;
         this.role = role;
         this.email = email;

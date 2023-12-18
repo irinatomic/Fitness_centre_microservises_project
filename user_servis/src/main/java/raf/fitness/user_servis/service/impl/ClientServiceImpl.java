@@ -2,10 +2,9 @@ package raf.fitness.user_servis.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
-import javassist.NotFoundException;
-import lombok.SneakyThrows;
 import org.springframework.stereotype.Service;
 import raf.fitness.user_servis.domain.Client;
+import raf.fitness.user_servis.exception.NotFoundException;
 import raf.fitness.user_servis.mapper.ClientMapper;
 import raf.fitness.user_servis.repository.ClientRepository;
 import raf.fitness.user_servis.security.service.TokenService;
@@ -37,7 +36,6 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    @SneakyThrows // SneakyThrows is used to suppress the compile time exception
     public ClientResponseDto activate(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         client.setActivated(true);
@@ -45,14 +43,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    @SneakyThrows
     public void delete(Long id) {
-        Client client = clientRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
-        client.setDeleted(true);
+        clientRepository.deleteById(id);
     }
 
     @Override
-    @SneakyThrows
     public ClientResponseDto update(Long id, ClientRequestDto clientRequestDto) {
         Client client = clientRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         if(client.getActivated()) {
@@ -67,7 +62,6 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    @SneakyThrows
     public TokenResponseDto login(TokenRequestDto tokenRequestDto) {
         // Try to find active user for specified credentials
         Client client = clientRepository.findByUsernameAndActivatedAndForbidden(tokenRequestDto.getUsername(), true, false).
@@ -84,7 +78,6 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
-    @SneakyThrows
     public void logout(Long id) {
         Client client = clientRepository.findByIdAndLoggedin(id, true).
                 orElseThrow(() -> new NotFoundException(String.format("Client with id: %s not found.", id)));
