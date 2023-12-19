@@ -19,6 +19,7 @@ public class Mail {
     private MailType mailType;
     private LocalDate timestamp;
     private String sentTo;
+    @Column(length = 1000)
     private String fullText;
 
     public Mail() {}

@@ -21,6 +21,7 @@ public class MailMapper {
     public MailResponseDto mailToMailResponseDto(Mail mail) {
         MailResponseDto mailResponseDto = new MailResponseDto();
         mailResponseDto.setId(mail.getId());
+        mailResponseDto.setMailType(mail.getMailType().getName());
         mailResponseDto.setSentTo(mail.getSentTo());
         mailResponseDto.setSubject(mail.getMailType().getSubject());
         mailResponseDto.setText(mail.getFullText());

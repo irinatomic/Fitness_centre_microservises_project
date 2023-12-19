@@ -8,6 +8,7 @@ import lombok.Setter;
 public class MailResponseDto {
 
     private Long id;
+    private String mailType;
     private String subject;
     private String sentTo;
     private String text;

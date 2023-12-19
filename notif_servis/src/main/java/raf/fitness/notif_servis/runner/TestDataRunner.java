@@ -3,9 +3,12 @@ package raf.fitness.notif_servis.runner;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
+import raf.fitness.notif_servis.domain.Mail;
 import raf.fitness.notif_servis.domain.MailType;
 import raf.fitness.notif_servis.repository.MailRepository;
 import raf.fitness.notif_servis.repository.MailTypeRepository;
+
+import java.time.LocalDate;
 
 @Profile({"default"})
 @Component
@@ -22,7 +25,36 @@ public class TestDataRunner implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
 
-        // Activation mail type
+        // Mail types
+        MailType activation = createActivationMT();
+        MailType resetPassword = createResetPasswordMT();
+        MailType reservation = createReservationMT();
+        MailType cancellation = createCancellationMT();
+        MailType freeTraining = createFreeTrainingMT();
+        MailType reminder = createReminderMT();
+
+        mailTypeRepository.save(activation);
+        mailTypeRepository.save(resetPassword);
+        mailTypeRepository.save(reservation);
+        mailTypeRepository.save(cancellation);
+        mailTypeRepository.save(freeTraining);
+        mailTypeRepository.save(reminder);
+
+        // Mails
+        Mail activationMail1 = createActivationMail1(activation);
+        Mail activationMail2 = createActivationMail2(activation);
+        Mail reservationMail = createReservationMail(reservation);
+        Mail reminderMail1 = createReminderMailClient(reminder);
+        Mail reminderMail2 = createReminderMailManager(reminder);
+
+        mailRepository.save(activationMail1);
+        mailRepository.save(activationMail2);
+        mailRepository.save(reservationMail);
+        mailRepository.save(reminderMail1);
+        mailRepository.save(reminderMail2);
+    }
+
+    private MailType createActivationMT() {
         String activationSubject = "Account activation";
         String activationText = "Dear %name%,\n\n" +
                 "Welcome to %fitnessCentre%!\n" +
@@ -30,9 +62,10 @@ public class TestDataRunner implements CommandLineRunner {
                 "%link%\n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType activation = new MailType("ACTIVATION", activationSubject, activationText);
+        return new MailType("ACTIVATION", activationSubject, activationText);
+    }
 
-        // Reset password mail type
+    private MailType createResetPasswordMT() {
         String resetPasswordSubject = "Password reset";
         String resetPasswordText = "Dear %name%,\n\n" +
                 "You have requested a password reset.\n" +
@@ -40,9 +73,10 @@ public class TestDataRunner implements CommandLineRunner {
                 "%link%\n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType resetPassword = new MailType("RESET_PASSWORD", resetPasswordSubject, resetPasswordText);
+        return new MailType("RESET_PASSWORD", resetPasswordSubject, resetPasswordText);
+    }
 
-        // Successful training reservation mail type
+    private MailType createReservationMT() {
         String reservationSubject = "Successful training reservation";
         String reservationText = "Dear %name%,\n\n" +
                 "You have successfully reserved a training.\n" +
@@ -51,12 +85,14 @@ public class TestDataRunner implements CommandLineRunner {
                 "Training date: %trainingDate%\n" +
                 "Training time: %trainingTime%\n" +
                 "Training duration: %trainingDuration%\n" +
+                "Trainer: %trainerName% %trainerSurname%\n" +
                 "Training price: %trainingPrice%\n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType reservation = new MailType("RESERVATION", reservationSubject, reservationText);
+        return new MailType("RESERVATION", reservationSubject, reservationText);
+    }
 
-        // Training cancellation mail type
+    private MailType createCancellationMT() {
         String cancellationSubject = "Training cancellation";
         String cancellationText = "Dear %name%,\n\n" +
                 "A training has been canceller.\n" +
@@ -68,9 +104,10 @@ public class TestDataRunner implements CommandLineRunner {
                 "Training price: %trainingPrice%\n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType cancellation = new MailType("CANCELLATION", cancellationSubject, cancellationText);
+        return new MailType("CANCELLATION", cancellationSubject, cancellationText);
+    }
 
-        // Free training mail type
+    private MailType createFreeTrainingMT() {
         String freeTrainingSubject = "Free training";
         String freeTrainingText = "Dear %name%,\n\n" +
                 "You have a free training.\n" +
@@ -82,9 +119,10 @@ public class TestDataRunner implements CommandLineRunner {
                 "Training price: 0 \n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType freeTraining = new MailType("FREE_TRAINING", freeTrainingSubject, freeTrainingText);
+        return new MailType("FREE_TRAINING", freeTrainingSubject, freeTrainingText);
+    }
 
-        // Training reminder mail type
+    private MailType createReminderMT() {
         String reminderSubject = "Training reminder";
         String reminderText = "Dear %name%,\n\n" +
                 "You have a training in 24 hours.\n" +
@@ -96,13 +134,71 @@ public class TestDataRunner implements CommandLineRunner {
                 "Training price: %trainingPrice%\n\n" +
                 "Best regards,\n" +
                 "%fitnessCentre% Team";
-        MailType reminder = new MailType("REMINDER", reminderSubject, reminderText);
+        return new MailType("REMINDER", reminderSubject, reminderText);
+    }
 
-        mailTypeRepository.save(activation);
-        mailTypeRepository.save(resetPassword);
-        mailTypeRepository.save(reservation);
-        mailTypeRepository.save(cancellation);
-        mailTypeRepository.save(freeTraining);
-        mailTypeRepository.save(reminder);
+    private Mail createActivationMail1(MailType activationMT) {
+        String fullText = "Dear CName_one CSurname_one,\n\n" +
+                "Welcome to Fitness Centre!\n" +
+                "Please click on the link below to activate your account:\n" +
+                "%https://activation_link\n\n" +
+                "Best regards,\n" +
+                "Fitness Centre Team";
+        return new Mail(activationMT, LocalDate.now(), "client_one@email.com", fullText);
+    }
+
+    private Mail createActivationMail2(MailType activationMT) {
+        String fullText = "Dear CName_two CSurname_two,\n\n" +
+                "Welcome to Fitness Centre!\n" +
+                "Please click on the link below to activate your account:\n" +
+                "%https://activation_link\n\n" +
+                "Best regards,\n" +
+                "Fitness Centre Team";
+        return new Mail(activationMT, LocalDate.now(), "client_two@email.com", fullText);
+    }
+
+    private Mail createReservationMail(MailType reservationMT) {
+        String fullText = "Dear CName_one CSurname_one,\n\n" +
+                "You have successfully reserved a training.\n" +
+                "Training details:\n" +
+                "Training name: Pilates\n" +
+                "Training date: 15.12.2023.\n" +
+                "Training time: 16h\n" +
+                "Training duration: 60min\n" +
+                "Trainer: MName_one MSurname_one\n" +
+                "Training price: 1000din\n\n" +
+                "Best regards,\n" +
+                "Fitness Centre Team";
+        return new Mail(reservationMT, LocalDate.now(), "client_one@email.com", fullText);
+    }
+
+    private Mail createReminderMailClient(MailType reminderMT) {
+        String fullText = "Dear CName_one CSurname_one,\n\n" +
+                "You have a training in 24 hours.\n" +
+                "Training details:\n" +
+                "Training name: Pilates\n" +
+                "Training date: 15.12.2023.\n" +
+                "Training time: 16h\n" +
+                "Training duration: 60min\n" +
+                "Trainer: MName_one MSurname_one\n" +
+                "Training price: 1000din\n\n" +
+                "Best regards,\n" +
+                "Fitness Centre Team";
+        return new Mail(reminderMT, LocalDate.now(), "client_one@email.com", fullText);
+    }
+
+    private Mail createReminderMailManager(MailType reminderMT) {
+        String fullText = "Dear MName_one MSurname_one,\n\n" +
+                "You have a training in 24 hours.\n" +
+                "Training details:\n" +
+                "Training name: Pilates\n" +
+                "Training date: 15.12.2023.\n" +
+                "Training time: 16h\n" +
+                "Training duration: 60min\n" +
+                "Trainer: MName_one MSurname_one\n" +
+                "Training price: 1000din\n\n" +
+                "Best regards,\n" +
+                "Fitness Centre Team";
+        return new Mail(reminderMT, LocalDate.now(), "manager_one@email.com", fullText);
     }
 }
