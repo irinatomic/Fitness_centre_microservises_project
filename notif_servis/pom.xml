@@ -79,6 +79,7 @@
 			<scope>compile</scope>
 		</dependency>
 
+
 		<!-- AMQ -->
 		<dependency>
 			<groupId>org.springframework.boot</groupId>

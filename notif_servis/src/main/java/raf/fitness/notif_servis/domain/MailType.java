@@ -17,11 +17,12 @@ public class MailType {
     @Column(unique = true)
     private String name;
     private String subject;
+    @Column(length = 1000)
     private String text;
 
     public MailType() {}
 
-    public MailType( String name, String subject, String text) {
+    public MailType(String name, String subject, String text) {
     	this.name = name;
         this.subject = subject;
     	this.text = text;

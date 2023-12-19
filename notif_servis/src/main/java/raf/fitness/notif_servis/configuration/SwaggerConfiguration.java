@@ -23,7 +23,7 @@ public class SwaggerConfiguration {
 
         return new Docket(DocumentationType.SWAGGER_2)
                 .useDefaultResponseMessages(false)
-                .select().apis(RequestHandlerSelectors.basePackage("raf.fitness.notif-servis.controller"))
+                .select().apis(RequestHandlerSelectors.basePackage("raf.fitness.notif_servis.controller"))
                 .build()
                 .apiInfo(metaData());
     }
