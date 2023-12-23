@@ -11,8 +11,7 @@ import java.time.LocalTime;
 @Setter
 @Entity
 @Table(name = "TimeSlot", indexes = {
-        @Index(name = "idx_date", columnList = "date"),
-        @Index(name = "idx_startTime", columnList = "startTime")
+        @Index(name = "idx_date", columnList = "date")
 })
 public class TimeSlot {
 
@@ -23,6 +22,7 @@ public class TimeSlot {
     private Long id;
     private LocalDate date;
     private LocalTime startTime;
+    private Integer duration = 15;
     private boolean isReserved;
     @ManyToOne
     private TrainingSession trainingSession;

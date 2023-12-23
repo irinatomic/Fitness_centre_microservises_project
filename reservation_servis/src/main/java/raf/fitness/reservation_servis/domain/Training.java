@@ -21,8 +21,10 @@ public class Training {
     private Integer capacity;
     private Integer minPeopleNo;
     @ManyToOne
+    @JoinColumn(name = "gymId")
     private Gym gym;
     @ManyToOne
+    @JoinColumn(name = "trainingTypeId")
     private TrainingType trainingType;
 
     public Training() {}

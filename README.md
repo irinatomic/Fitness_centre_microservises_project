@@ -20,6 +20,13 @@ To run the application locally, execute the `{service_name}ServisApplication` fi
 | JDBC Driver              | jdbc:h2:mem:user-service-db                                                                                      |
 | Swagger UI for API calls | [http://localhost:8081/user-service/swagger-ui.html#/](http://localhost:8081/user-service/swagger-ui.html#/)     |
 
+**Reservation Service**
+| Name                     | Access link                                                                                                      |
+|--------------------------|------------------------------------------------------------------------------------------------------------------|
+| Database                 | [http://localhost:8082/reservation-service/h2-console](http://localhost:8082/reservation-service/h2-console)     |
+| JDBC Driver              | jdbc:h2:mem:reservation-service-db                                                                               |
+| Swagger UI for API calls | [http://localhost:8082/reservation-service/swagger-ui.html#/](http://localhost:8082/reservation-service/swagger-ui.html#/)|
+
 **Notification Service**
 
 | Name                     | Access link                                                                                                       |

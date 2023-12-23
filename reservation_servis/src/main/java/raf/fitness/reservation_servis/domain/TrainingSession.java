@@ -4,6 +4,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.time.LocalDate;
+import java.time.LocalTime;
 
 @Getter
 @Setter
@@ -19,6 +21,8 @@ public class TrainingSession {
     private Integer creatorId;
     private Integer signedUpCount;
     private String trainingTypeName;
+    private LocalDate date;
+    private LocalTime startTime;
     @ManyToOne
     private Training training;
     @ManyToOne
@@ -26,9 +30,11 @@ public class TrainingSession {
 
     public TrainingSession() {}
 
-    public TrainingSession(Integer creatorId, Integer signedUpCount, String trainingTypeName) {
+    public TrainingSession(Integer creatorId, Integer signedUpCount, String trainingTypeName, LocalDate date, LocalTime startTime) {
         this.creatorId = creatorId;
         this.signedUpCount = signedUpCount;
         this.trainingTypeName = trainingTypeName;
+        this.date = date;
+        this.startTime = startTime;
     }
 }
