@@ -14,19 +14,20 @@ public class SignedUp {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer clientId;
-    private String clientFirstName;
-    private String clientLastName;
-    private String clientEmail;
+    private Long clientId;
+    private String firstName;
+    private String lastName;
+    private String email;
     @ManyToOne
     private TrainingSession trainingSession;
 
     public SignedUp() {}
 
-    public SignedUp(Integer clientId, String clientFirstName, String clientLastName, String clientEmail) {
+    public SignedUp(Long clientId, String firstName, String lastName, String email, TrainingSession trainingSession) {
         this.clientId = clientId;
-        this.clientFirstName = clientFirstName;
-        this.clientLastName = clientLastName;
-        this.clientEmail = clientEmail;
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.email = email;
+        this.trainingSession = trainingSession;
     }
 }

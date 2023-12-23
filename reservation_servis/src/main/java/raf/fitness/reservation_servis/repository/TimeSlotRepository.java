@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface TimeSlotRepository extends JpaRepository<TimeSlot, Long> {
 
-    // filter free time slots by date
-    List<TimeSlot> findAllByIsReservedAndDate(Boolean isReserved, String date);
+    List<TimeSlot> findAllByGymIdAndDateAndIsReserved(Long gymId, String date, Boolean isReserved);
 }

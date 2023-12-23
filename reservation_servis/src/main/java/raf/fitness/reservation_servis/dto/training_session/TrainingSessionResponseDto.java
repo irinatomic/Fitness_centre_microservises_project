@@ -3,6 +3,8 @@ package raf.fitness.reservation_servis.dto.training_session;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.List;
 
 @Getter
@@ -10,12 +12,12 @@ import java.util.List;
 public class TrainingSessionResponseDto {
 
     private Long id;
-    private Integer creatorId;
+    private Long creatorId;
     private Integer signedUpCount;
     private String trainingTypeName;
-    private String date;
-    private String startTime;
-    private Integer trainingId;
-    private Integer gymId;
+    private LocalDate date;
+    private LocalTime startTime;
+    private Long trainingId;
+    private Long gymId;
     private List<String> signedUpUsersEmails;
 }

@@ -11,7 +11,7 @@ public class TrainingResponseDto {
     private String name;
     private Integer price;
     private Integer duration;
-    private String capacity;
+    private Integer capacity;
     private Integer minPeopleNo;
     private Long gymId;
     private Long trainingTypeId;

@@ -17,7 +17,6 @@ public class TrainingSessionRequestDto {
 
     @NotNull
     private Long creatorId;
-    private Integer signedUpCount = 1;
     @NotBlank
     private String trainingTypeName;
     @NotNull

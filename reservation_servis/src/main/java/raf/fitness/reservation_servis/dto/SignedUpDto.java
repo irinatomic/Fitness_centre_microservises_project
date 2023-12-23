@@ -21,7 +21,7 @@ public class SignedUpDto {
     @NotBlank
     private String lastName;
     @Email
-    private String clientEmail;
+    private String email;
     @NotNull
     private Long trainingSessionId;
 }

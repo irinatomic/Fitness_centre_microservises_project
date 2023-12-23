@@ -18,7 +18,7 @@ public class TrainingSession {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private Integer creatorId;
+    private Long creatorId;
     private Integer signedUpCount;
     private String trainingTypeName;
     private LocalDate date;
@@ -30,7 +30,7 @@ public class TrainingSession {
 
     public TrainingSession() {}
 
-    public TrainingSession(Integer creatorId, Integer signedUpCount, String trainingTypeName, LocalDate date, LocalTime startTime) {
+    public TrainingSession(Long creatorId, Integer signedUpCount, String trainingTypeName, LocalDate date, LocalTime startTime) {
         this.creatorId = creatorId;
         this.signedUpCount = signedUpCount;
         this.trainingTypeName = trainingTypeName;

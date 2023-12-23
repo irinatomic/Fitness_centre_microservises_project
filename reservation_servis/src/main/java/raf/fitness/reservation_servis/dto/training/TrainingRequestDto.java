@@ -22,9 +22,9 @@ public class TrainingRequestDto {
     private Integer price;
     @DivisibleByFifteen
     private Integer duration;
-    @NotBlank
-    private String capacity;
-    @NotBlank
+    @NotNull
+    private Integer capacity;
+    @NotNull
     private Integer minPeopleNo;
     @NotNull
     private Long gymId;

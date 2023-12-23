@@ -25,6 +25,8 @@ public class TimeSlot {
     private Integer duration = 15;
     private boolean isReserved;
     @ManyToOne
+    private Gym gym;
+    @ManyToOne
     private TrainingSession trainingSession;
 
     public TimeSlot() {}
