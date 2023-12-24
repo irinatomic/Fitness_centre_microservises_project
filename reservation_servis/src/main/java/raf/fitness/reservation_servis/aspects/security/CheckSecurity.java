@@ -1,4 +1,4 @@
-package raf.fitness.reservation_servis.ascpects.security;
+package raf.fitness.reservation_servis.aspects.security;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

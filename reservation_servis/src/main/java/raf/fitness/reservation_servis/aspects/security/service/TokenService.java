@@ -1,4 +1,4 @@
-package raf.fitness.reservation_servis.ascpects.security.service;
+package raf.fitness.reservation_servis.aspects.security.service;
 
 import io.jsonwebtoken.Claims;
 

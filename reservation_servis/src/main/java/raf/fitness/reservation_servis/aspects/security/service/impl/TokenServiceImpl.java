@@ -1,11 +1,11 @@
-package raf.fitness.reservation_servis.ascpects.security.service.impl;
+package raf.fitness.reservation_servis.aspects.security.service.impl;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import raf.fitness.reservation_servis.ascpects.security.service.TokenService;
+import raf.fitness.reservation_servis.aspects.security.service.TokenService;
 
 @Service
 public class TokenServiceImpl implements TokenService {

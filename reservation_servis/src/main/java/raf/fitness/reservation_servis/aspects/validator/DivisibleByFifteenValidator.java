@@ -1,4 +1,4 @@
-package raf.fitness.reservation_servis.ascpects.validator;
+package raf.fitness.reservation_servis.aspects.validator;
 
 import javax.validation.ConstraintValidator;
 import javax.validation.ConstraintValidatorContext;

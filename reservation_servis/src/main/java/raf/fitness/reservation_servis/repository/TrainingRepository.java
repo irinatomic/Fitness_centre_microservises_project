@@ -10,6 +10,8 @@ import java.util.List;
 @Repository
 public interface TrainingRepository extends JpaRepository<Training, Long> {
 
+    List<Training> findAllByGymId(Long gymId);
+
     @Query("SELECT t FROM Training t WHERE t.gym.id = :gymId AND t.trainingType.id = :trainingTypeId")
-    List<Training> findByGymIdAndTrainingTypeId(Long gymId, Long trainingTypeId);
+    List<Training> findAllByGymIdAndTrainingTypeId(Long gymId, Long trainingTypeId);
 }

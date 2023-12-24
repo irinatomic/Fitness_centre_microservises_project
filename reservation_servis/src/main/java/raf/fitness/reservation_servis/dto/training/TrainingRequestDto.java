@@ -2,7 +2,7 @@ package raf.fitness.reservation_servis.dto.training;
 
 import lombok.Getter;
 import lombok.Setter;
-import raf.fitness.reservation_servis.ascpects.validator.DivisibleByFifteen;
+import raf.fitness.reservation_servis.aspects.validator.DivisibleByFifteen;
 
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
