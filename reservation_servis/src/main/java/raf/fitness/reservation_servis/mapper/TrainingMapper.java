@@ -2,6 +2,7 @@ package raf.fitness.reservation_servis.mapper;
 
 import org.springframework.stereotype.Component;
 import raf.fitness.reservation_servis.domain.Training;
+import raf.fitness.reservation_servis.domain.TrainingType;
 import raf.fitness.reservation_servis.dto.training.*;
 import raf.fitness.reservation_servis.repository.GymRepository;
 import raf.fitness.reservation_servis.repository.TrainingTypeRepository;
@@ -23,9 +24,15 @@ public class TrainingMapper {
         training.setPrice(requestDto.getPrice());
         training.setDuration(requestDto.getDuration());
         training.setCapacity(requestDto.getCapacity());
-        training.setMinPeopleNo(requestDto.getMinPeopleNo());
         training.setGym(gymRepository.findById(requestDto.getGymId()).orElse(null));
-        training.setTrainingType(trainingTypeRepository.findById(requestDto.getTrainingTypeId()).orElse(null));
+
+        TrainingType trainingType = trainingTypeRepository.findById(requestDto.getTrainingTypeId()).orElse(null);
+        training.setTrainingType(trainingType);
+
+        if(trainingType.getName().equalsIgnoreCase("GROUP"))
+            training.setMinPeopleNo(requestDto.getMinPeopleNo());
+        else training.setMinPeopleNo(1);
+
         return training;
     }
 
