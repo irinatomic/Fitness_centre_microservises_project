@@ -14,7 +14,6 @@ public class Training {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(unique = true)
     private String name;
     private Integer price;
     private Integer duration; // minutes
@@ -29,12 +28,14 @@ public class Training {
 
     public Training() {}
 
-    public Training(String name, Integer price, Integer duration, Integer capacity, Integer minPeopleNo) {
+    public Training(String name, Integer price, Integer duration, Integer capacity, Integer minPeopleNo, Gym gym, TrainingType trainingType) {
         this.name = name;
         this.price = price;
         this.duration = duration;
         this.capacity = capacity;
         this.minPeopleNo = minPeopleNo;
+        this.gym = gym;
+        this.trainingType = trainingType;
     }
 
 }

@@ -101,10 +101,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public void cancelAsManager(Long sessionId){
+    public void cancelAsManager(Long managerId, Long sessionId){
         // time slots stay reserved
         TrainingSession ts = trainingSessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Training session not found"));
         List<SignedUp> signedUpUsers = signedUpRepository.findAllByTrainingSessionId(sessionId);
+
+        // check managerId == ts.getGym().getManagerId()
+        if(!managerId.equals(ts.getGym().getManagerId())) {
+            throw new RuntimeException("Manager not authorized");
+        }
 
         trainingSessionRepository.deleteById(sessionId);
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);

@@ -31,10 +31,10 @@ public class TimeSlot {
 
     public TimeSlot() {}
 
-    public TimeSlot(LocalDate date, LocalTime startTime, boolean isReserved) {
+    public TimeSlot(LocalDate date, LocalTime startTime) {
         this.date = date;
         this.startTime = startTime;
-        this.isReserved = isReserved;
+        this.isReserved = false;
     }
 
 }

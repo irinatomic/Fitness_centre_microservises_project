@@ -1,6 +1,5 @@
 package raf.fitness.reservation_servis.service;
 
-import raf.fitness.reservation_servis.domain.TimeSlot;
 import raf.fitness.reservation_servis.dto.TimeSlotDto;
 
 import java.time.LocalDate;

@@ -42,15 +42,27 @@ public class TrainingServiceImpl implements TrainingService {
     }
 
     @Override
-    public TrainingResponseDto add(TrainingRequestDto requestDto) {
+    public TrainingResponseDto add(Long managerId, TrainingRequestDto requestDto) {
         Training t = trainingMapper.requestDtoToTraining(requestDto);
+
+        // check if managerId = t.getGym().getManagerId()
+        if (!managerId.equals(t.getGym().getManagerId())) {
+            throw new RuntimeException("You are not authorized to change this training");
+        }
+
         trainingRepository.save(t);
         return trainingMapper.trainingToResponseDto(t);
     }
 
     @Override
-    public TrainingResponseDto update(Long id, TrainingRequestDto requestDto) {
+    public TrainingResponseDto update(Long id, Long managerId, TrainingRequestDto requestDto) {
         Training t = trainingRepository.findById(id).orElseThrow(() ->  new RuntimeException("Training with id " + id + " does not exist"));
+
+        // check if managerId = t.getGym().getManagerId()
+        if (!managerId.equals(t.getGym().getManagerId())) {
+            throw new RuntimeException("You are not authorized to change this training");
+        }
+
         t.setName(requestDto.getName());
         t.setPrice(requestDto.getPrice());
         t.setDuration(requestDto.getDuration());

@@ -36,8 +36,14 @@ public class GymServiceImpl implements GymService {
     }
 
     @Override
-    public GymResponseDto update(Long id, GymRequestDto gymRequestDto) {
+    public GymResponseDto update(Long id, Long managerId, GymRequestDto gymRequestDto) {
         Gym toChange = gymRepository.findById(id).orElseThrow(() -> new RuntimeException("Gym not found"));
+
+        // check if managerId == toChange.getManagerId()
+        if (!managerId.equals(toChange.getManagerId())) {
+            throw new RuntimeException("You are not authorized to change this gym");
+        }
+
         toChange.setName(gymRequestDto.getName());
         toChange.setDescription(gymRequestDto.getDescription());
         toChange.setCoachesCount(gymRequestDto.getCoachesCount());
@@ -48,8 +54,14 @@ public class GymServiceImpl implements GymService {
     }
 
     @Override
-    public GymResponseDto changeFreeSessionNo(Long id, Integer freeSessionNo) {
+    public GymResponseDto changeFreeSessionNo(Long id, Long managerId, Integer freeSessionNo) {
         Gym toChange = gymRepository.findById(id).orElseThrow(() -> new RuntimeException("Gym not found"));
+
+        // check if managerId == toChange.getManagerId()
+        if (!managerId.equals(toChange.getManagerId())) {
+            throw new RuntimeException("You are not authorized to change this gym");
+        }
+
         toChange.setFreeSessionNo(freeSessionNo);
         return gymMapper.gymToResponseDto(toChange);
     }

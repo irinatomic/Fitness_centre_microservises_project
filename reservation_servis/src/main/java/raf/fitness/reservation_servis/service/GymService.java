@@ -10,7 +10,7 @@ public interface GymService {
 
     GymResponseDto create(GymRequestDto gymRequestDto);
 
-    GymResponseDto update(Long id, GymRequestDto gymRequestDto);
+    GymResponseDto update(Long id, Long managerId, GymRequestDto gymRequestDto);
 
-    GymResponseDto changeFreeSessionNo(Long id, Integer freeSessionNo);
+    GymResponseDto changeFreeSessionNo(Long id, Long managerId, Integer freeSessionNo);
 }

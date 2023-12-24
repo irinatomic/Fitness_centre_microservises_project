@@ -18,7 +18,7 @@ public interface TrainingSessionService {
 
     void cancelAsUser(Long sessionId, Long userId);
 
-    void cancelAsManager(Long sessionId);
+    void cancelAsManager(Long managerId, Long sessionId);
 
     // delete a session - used by the cron job
     void delete(Long sessionId);

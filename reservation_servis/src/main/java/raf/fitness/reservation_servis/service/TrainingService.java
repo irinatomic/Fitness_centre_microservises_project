@@ -13,8 +13,8 @@ public interface TrainingService {
     List<TrainingResponseDto> findAllForGymAndTrainingType(Long gymId, Long trainingTypeId);
 
     // add a training to a gym
-    TrainingResponseDto add(TrainingRequestDto requestDto);
+    TrainingResponseDto add(Long managerId, TrainingRequestDto requestDto);
 
     // update a training for a gym
-    TrainingResponseDto update(Long id, TrainingRequestDto requestDto);
+    TrainingResponseDto update(Long id, Long managerId, TrainingRequestDto requestDto);
 }
