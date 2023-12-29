@@ -57,7 +57,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             startTime = startTime.plusMinutes(15);
         }
 
-        //Todo: service 3 to notify the creator that the session is reserved
+        // Todo: service 1 to check if the next session is free + increment session count
+
+        // Todo: service 3 to notify the creator that the session is reserved
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
     }
 
@@ -73,6 +75,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         SignedUp su = signedUpMapper.requestDtoToSignedUp(user);
         signedUpRepository.save(su);
         ts.setSignedUpCount(ts.getSignedUpCount() + 1);
+        // Todo: service 1 to check if the next session is free + increment session count
         // Todo: service 3 to notify the user that he is signed up
     }
 
@@ -96,6 +99,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             session.setSignedUpCount(session.getSignedUpCount() - 1);
         }
 
+        //Todo: service 1 to decrement session count
         //Todo: service 3 to notify the user that the session is cancelled
         signedUpRepository.delete(signedUp);
     }
@@ -114,6 +118,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         trainingSessionRepository.deleteById(sessionId);
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);
 
+        // Todo: service 1 to decrement session count for ALL signed-up users
         // Todo: service 3 to notify all signed-up users that the session is cancelled
     }
 
@@ -122,6 +127,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     public void delete(Long sessionId) {
         // this method is called by the cron job
         List<SignedUp> signedUpUsers = signedUpRepository.findAllByTrainingSessionId(sessionId);
+        // Todo: service 1 to decrement session count for ALL signed-up users
         // Todo: service 3 to notify all signed-up users that the session is cancelled
 
         // delete all signed-up users

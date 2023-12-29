@@ -32,6 +32,8 @@ public class ClientServiceImpl implements ClientService {
     public ClientResponseDto add(ClientRequestDto clientRequestDto) {
         Client client = clientMapper.clientCreateRequestDtoToClient(clientRequestDto);
         clientRepository.save(client);
+
+        // Todo: service 3 -> activation mail
         return clientMapper.clientToClientResponseDto(client);
     }
 

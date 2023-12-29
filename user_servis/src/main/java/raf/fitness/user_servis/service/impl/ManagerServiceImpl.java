@@ -32,6 +32,8 @@ public class ManagerServiceImpl implements ManagerService {
     public ManagerResponseDto add(ManagerRequestDto managerRequestDto) {
         Manager manager = managerMapper.managerCreateRequestDtoToManager(managerRequestDto);
         managerRepository.save(manager);
+
+        // Todo: service 3 -> activation mail
         return managerMapper.managerToManagerResponseDto(manager);
     }
 
