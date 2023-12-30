@@ -17,7 +17,7 @@ import java.util.Collections;
 public class ReservationClientCommunication {
 
     @Bean
-    public RestTemplate reservationClientCommunication(){
+    public RestTemplate reservationRestTemplate(){
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:8081/user-service"));
         restTemplate.setInterceptors(Collections.singletonList(new TokenInterceptor()));

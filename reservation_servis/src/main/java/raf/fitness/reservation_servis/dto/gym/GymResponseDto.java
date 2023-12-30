@@ -17,7 +17,7 @@ public class GymResponseDto {
     private String name;
     private String description;
     private Integer coachesCount;
-    private Integer managerId;
+    private Long managerId;
     private Integer freeSessionNo;
     private LocalTime openingTime;
     private LocalTime closingTime;

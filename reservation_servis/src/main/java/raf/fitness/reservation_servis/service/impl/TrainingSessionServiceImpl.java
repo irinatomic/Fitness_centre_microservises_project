@@ -1,6 +1,5 @@
 package raf.fitness.reservation_servis.service.impl;
 
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpMethod;
@@ -19,7 +18,6 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,9 +31,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private TrainingRepository trainingRepository;
     private SignedUpRepository signedUpRepository;
     private SignedUpMapper signedUpMapper;
-    private RestTemplate reservationClientCommunication;
+    private RestTemplate reservationRestTemplate;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, @Qualifier("reservationClientCommunication") RestTemplate reservationClientCommunication) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
@@ -43,7 +41,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         this.trainingRepository = trainingRepository;
         this.signedUpRepository = signedUpRepository;
         this.signedUpMapper = signedUpMapper;
-        this.reservationClientCommunication = reservationClientCommunication;
+        this.reservationRestTemplate = reservationRestTemplate;
     }
 
     @Override
@@ -78,7 +76,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Integer cena = training.getPrice();
 
         try {
-            ResponseEntity<Integer> bookedNo = reservationClientCommunication.exchange("/client/booked-no/" + creator.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/" + creator.getClientId(),
                     HttpMethod.GET, null, Integer.class);
             Long gymId = trainingSessionRequestDto.getGymId();
             Gym gym = gymRepository.findById(gymId).get();
@@ -119,7 +117,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Integer cena = training.getPrice();
 
         try {
-            ResponseEntity<Integer> bookedNo = reservationClientCommunication.exchange("/client-booked-no/" + user.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client-booked-no/" + user.getClientId(),
                     HttpMethod.GET, null, Integer.class);
             Long gymId = training.getGym().getId();
             if(!gymRepository.findById(gymId).isPresent()){
