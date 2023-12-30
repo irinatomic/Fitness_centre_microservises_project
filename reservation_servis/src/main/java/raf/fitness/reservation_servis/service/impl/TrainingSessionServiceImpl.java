@@ -1,8 +1,12 @@
 package raf.fitness.reservation_servis.service.impl;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 import raf.fitness.reservation_servis.domain.*;
 import raf.fitness.reservation_servis.dto.SignedUpDto;
 import raf.fitness.reservation_servis.dto.training_session.*;
@@ -15,6 +19,7 @@ import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,15 +29,21 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private TrainingSessionRepository trainingSessionRepository;
     private TrainingSessionMapper trainingSessionMapper;
     private TimeSlotRepository timeSlotRepository;
+    private GymRepository gymRepository;
+    private TrainingRepository trainingRepository;
     private SignedUpRepository signedUpRepository;
     private SignedUpMapper signedUpMapper;
+    private RestTemplate reservationClientCommunication;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, @Qualifier("reservationClientCommunication") RestTemplate reservationClientCommunication) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
+        this.gymRepository = gymRepository;
+        this.trainingRepository = trainingRepository;
         this.signedUpRepository = signedUpRepository;
         this.signedUpMapper = signedUpMapper;
+        this.reservationClientCommunication = reservationClientCommunication;
     }
 
     @Override
@@ -57,8 +68,32 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             startTime = startTime.plusMinutes(15);
         }
 
-        // Todo: service 1 to check if the next session is free + increment session count
+        // Service 1: get clients trainingsBookedNo (sinh)
 
+        Long trainingId = trainingSessionRequestDto.getTrainingId();
+        if(!trainingRepository.findById(trainingId).isPresent()){
+            System.out.println("There is no training by that id");
+        }
+        Training training = trainingRepository.findById(trainingId).get();
+        Integer cena = training.getPrice();
+
+        try {
+            ResponseEntity<Integer> bookedNo = reservationClientCommunication.exchange("/client/booked-no/" + creator.getClientId(),
+                    HttpMethod.GET, null, Integer.class);
+            Long gymId = trainingSessionRequestDto.getGymId();
+            Gym gym = gymRepository.findById(gymId).get();
+            if(bookedNo.getBody() == null) {
+                System.out.println("BookedNo body is empty");
+                return null;
+            }
+            if (bookedNo.getBody() % gym.getFreeSessionNo() == 0) {
+                cena = 0;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+
+        // Todo: service 1 increment session count asinh
         // Todo: service 3 to notify the creator that the session is reserved
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
     }
@@ -67,7 +102,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     public void signUp(Long sessionId, SignedUpDto user) {
         TrainingSession ts = trainingSessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Training session not found"));
 
-        if (ts.getSignedUpCount() == ts.getTraining().getCapacity()) {
+        if (ts.getSignedUpCount().equals(ts.getTraining().getCapacity())) {
             // Todo: service 3 to notify that there is no free spot
             return;
         }
@@ -75,7 +110,33 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         SignedUp su = signedUpMapper.requestDtoToSignedUp(user);
         signedUpRepository.save(su);
         ts.setSignedUpCount(ts.getSignedUpCount() + 1);
-        // Todo: service 1 to check if the next session is free + increment session count
+
+        // Service 1: get clients trainingsBookedNo (sinh)
+        if(!trainingRepository.findById(sessionId).isPresent()){
+            System.out.println("There is no training session by that id");
+        }
+        Training training = trainingRepository.findById(sessionId).get();
+        Integer cena = training.getPrice();
+
+        try {
+            ResponseEntity<Integer> bookedNo = reservationClientCommunication.exchange("/client-booked-no/" + user.getClientId(),
+                    HttpMethod.GET, null, Integer.class);
+            Long gymId = training.getGym().getId();
+            if(!gymRepository.findById(gymId).isPresent()){
+                System.out.println("There is no gym session by that id");
+            }
+            Gym gym = gymRepository.findById(gymId).get();
+            if(bookedNo.getBody() == null) {
+                System.out.println("BookedNo body is empty");
+                return;
+            }
+            if (bookedNo.getBody() % gym.getFreeSessionNo() == 0) {
+                cena = 0;
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        // Todo: increment session count
         // Todo: service 3 to notify the user that he is signed up
     }
 

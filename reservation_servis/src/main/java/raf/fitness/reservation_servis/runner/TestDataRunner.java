@@ -67,7 +67,7 @@ public class TestDataRunner implements CommandLineRunner {
         String name = "Gym_one";
         String description = "Gym_one description";
         Integer coachesCount = 10;
-        Integer managerId = 1;
+        Long managerId = 1L; // in java we should write long values like this
         Integer freeSessionNo = 10;
         LocalTime openingTime = LocalTime.of(6, 0);
         LocalTime closingTime = LocalTime.of(22, 0);
@@ -78,7 +78,7 @@ public class TestDataRunner implements CommandLineRunner {
         String name = "Gym_two";
         String description = "Gym_two description";
         Integer coachesCount = 12;
-        Integer managerId = 2;
+        Long managerId = 2L;
         Integer freeSessionNo = 9;
         LocalTime openingTime = LocalTime.of(8, 0);
         LocalTime closingTime = LocalTime.of(21, 0);

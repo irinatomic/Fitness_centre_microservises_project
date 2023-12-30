@@ -22,14 +22,14 @@ public class Gym {
     private String description;
     private Integer coachesCount;
     @Column(unique = true)
-    private Integer managerId;
+    private Long managerId;
     private Integer freeSessionNo;
     private LocalTime openingTime;
     private LocalTime closingTime;
 
     public Gym() {}
 
-    public Gym(String name, String description, Integer coachesCount, Integer managerId, Integer freeSessionNo, LocalTime openingTime, LocalTime closingTime) {
+    public Gym(String name, String description, Integer coachesCount, Long managerId, Integer freeSessionNo, LocalTime openingTime, LocalTime closingTime) {
     	this.name = name;
     	this.description = description;
     	this.coachesCount = coachesCount;
