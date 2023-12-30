@@ -70,5 +70,11 @@ public class ClientController {
         clientService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
+
+    @ApiOperation(value = "Get Clients booked number", notes = "Get Clients booked number with the provided ID.")
+    @GetMapping("/booked-no")
+    public ResponseEntity<Integer> getClientsBookedNo(@RequestParam Long id){
+        return new ResponseEntity<>(clientService.getClientsBookedNo(id), HttpStatus.OK);
+    }
 }
 

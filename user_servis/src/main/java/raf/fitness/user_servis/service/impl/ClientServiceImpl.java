@@ -50,6 +50,12 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public Integer getClientsBookedNo(Long id) {
+        Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
+        return client.getTrainingsBookedNo();
+    }
+
+    @Override
     public ClientResponseDto update(Long id, ClientRequestDto clientRequestDto) {
         Client client = clientRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         if(client.getActivated()) {
