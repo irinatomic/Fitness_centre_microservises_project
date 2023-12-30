@@ -3,6 +3,8 @@ package raf.fitness.user_servis.service.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Service;
+import raf.fitness.user_servis.async_comm.email.EmailSenderService;
+import raf.fitness.user_servis.async_comm.email.EmailType;
 import raf.fitness.user_servis.domain.Manager;
 import raf.fitness.user_servis.dto.manager.*;
 import raf.fitness.user_servis.dto.token.*;
@@ -13,6 +15,8 @@ import raf.fitness.user_servis.security.service.TokenService;
 import raf.fitness.user_servis.service.ManagerService;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -22,16 +26,29 @@ public class ManagerServiceImpl implements ManagerService {
     private ManagerRepository managerRepository;
     private ManagerMapper managerMapper;
 
-    public ManagerServiceImpl(TokenService tokenService, ManagerRepository managerRepository, ManagerMapper managerMapper) {
+    // async communication
+    private EmailSenderService emailSenderService;
+
+    public ManagerServiceImpl(TokenService tokenService, ManagerRepository managerRepository, ManagerMapper managerMapper, EmailSenderService emailSenderService) {
         this.tokenService = tokenService;
         this.managerRepository = managerRepository;
         this.managerMapper = managerMapper;
+        this.emailSenderService = emailSenderService;
     }
 
     @Override
     public ManagerResponseDto add(ManagerRequestDto managerRequestDto) {
         Manager manager = managerMapper.managerCreateRequestDtoToManager(managerRequestDto);
         managerRepository.save(manager);
+
+        // == Service 3 -> activation mail ==
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", manager.getFirstName());
+        params.put("lastName", manager.getLastName());
+        params.put("link", "http://localhost:8080/manager/activate/" + manager.getId());
+
+        emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, manager.getEmail(), params);
+
         return managerMapper.managerToManagerResponseDto(manager);
     }
 
@@ -84,8 +101,4 @@ public class ManagerServiceImpl implements ManagerService {
         managerRepository.deleteById(id);
     }
 
-    @Override
-    public void giveFreeTraining(Long id) {
-        // todo - komunikacija sa 3. servisom
-    }
 }

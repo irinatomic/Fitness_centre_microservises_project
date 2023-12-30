@@ -63,16 +63,5 @@ public class ManagerController {
         managerService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
     }
-
-    @ApiOperation(value = "Give free training", notes = "Provides free training to a manager with the specified ID.")
-    @ApiImplicitParams({
-            @ApiImplicitParam(name = "id", value = "ID of the manager to give free training", required = true, dataType = "Long", paramType = "query")
-    })
-    @PostMapping("/give-free")
-    @CheckSecurity(roles = {"MANAGER"})
-    public ResponseEntity<?> giveFreeTraining(@RequestParam Long id, @RequestHeader("Authorization") String authorization) {
-        managerService.giveFreeTraining(id);
-        return new ResponseEntity<>(HttpStatus.OK);
-    }
 }
 

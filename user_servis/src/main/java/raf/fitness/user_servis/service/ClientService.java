@@ -16,4 +16,6 @@ public interface ClientService {
     void logout(Long id);
 
     void delete(Long id);
+
+    Integer getClientsBookedNo(Long id);
 }
