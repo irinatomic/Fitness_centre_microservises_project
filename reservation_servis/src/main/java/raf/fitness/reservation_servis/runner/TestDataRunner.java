@@ -78,8 +78,8 @@ public class TestDataRunner implements CommandLineRunner {
         String name = "Gym_one";
         String description = "Gym_one description";
         Integer coachesCount = 10;
-        Long managerId = 1L; // in java we should write long values like this
-        Integer freeSessionNo = 10;
+        Long managerId = 1L;            // long
+        Integer freeSessionNo = 1;
         LocalTime openingTime = LocalTime.of(6, 0);
         LocalTime closingTime = LocalTime.of(22, 0);
         return new Gym(name, description, coachesCount, managerId, freeSessionNo, openingTime, closingTime);

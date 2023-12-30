@@ -20,7 +20,7 @@ public class MessageReceiver {
     public MessageReceiver(EmailService emailService, MailMapper mailMapper, MessageHelper messageHelper) {
         this.emailService = emailService;
         this.mailMapper = mailMapper;
-        MessageHelper = messageHelper;
+        this.MessageHelper = messageHelper;
     }
 
     @JmsListener(destination = "${origin.sendEmail}")

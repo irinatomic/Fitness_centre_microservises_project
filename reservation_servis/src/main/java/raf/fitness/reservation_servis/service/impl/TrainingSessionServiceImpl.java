@@ -1,27 +1,22 @@
 package raf.fitness.reservation_servis.service.impl;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import raf.fitness.reservation_servis.async_comm.email.EmailSenderService;
-import raf.fitness.reservation_servis.async_comm.email.EmailType;
+import raf.fitness.reservation_servis.async_comm.bookings.BookingsHandlerService;
+import raf.fitness.reservation_servis.async_comm.email.*;
 import raf.fitness.reservation_servis.domain.*;
 import raf.fitness.reservation_servis.dto.SignedUpDto;
 import raf.fitness.reservation_servis.dto.training_session.*;
-import raf.fitness.reservation_servis.mapper.SignedUpMapper;
-import raf.fitness.reservation_servis.mapper.TrainingSessionMapper;
+import raf.fitness.reservation_servis.mapper.*;
 import raf.fitness.reservation_servis.repository.*;
 import raf.fitness.reservation_servis.service.TrainingSessionService;
 
 import javax.transaction.Transactional;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.time.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -38,8 +33,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private RestTemplate reservationRestTemplate;
     // async communication
     private EmailSenderService emailSenderService;
+    private BookingsHandlerService bookingsHandlerService;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, EmailSenderService emailSenderService, RestTemplate reservationRestTemplate) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
@@ -49,6 +45,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         this.signedUpMapper = signedUpMapper;
         this.reservationRestTemplate = reservationRestTemplate;
         this.emailSenderService = emailSenderService;
+        this.bookingsHandlerService = bookingsHandlerService;
     }
 
     @Override
@@ -73,8 +70,6 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             startTime = startTime.plusMinutes(15);
         }
 
-        // Service 1: get clients trainingsBookedNo (sinh)
-
         Long trainingId = trainingSessionRequestDto.getTrainingId();
         if(!trainingRepository.findById(trainingId).isPresent()){
             System.out.println("There is no training by that id");
@@ -82,8 +77,10 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Training training = trainingRepository.findById(trainingId).get();
         Integer cena = training.getPrice();
 
+        // == Service 1 to get clients trainingsBookedNo ==
+
         try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/" + creator.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + creator.getClientId(),
                     HttpMethod.GET, null, Integer.class);
             Long gymId = trainingSessionRequestDto.getGymId();
             if(!gymRepository.findById(gymId).isPresent()){
@@ -94,15 +91,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
                 System.out.println("BookedNo body is empty");
                 return null;
             }
-            if (bookedNo.getBody() % gym.getFreeSessionNo() == 0) {
+            if ((bookedNo.getBody()+1) % gym.getFreeSessionNo() == 0) {
                 cena = 0;
             }
         } catch (Exception e){
             e.printStackTrace();
         }
 
-        // Todo: service 1 increment session count asinh
-        // Todo: service 3 to notify the creator that the session is reserved
+        // == Service 1 increment session count ==
+        bookingsHandlerService.sendMessageToQueue('+', List.of(su));
 
         // == Service 3 to notify the creator that the session is reserved ==
         Map<String, String> params = new HashMap<>();
@@ -124,7 +121,6 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         TrainingSession ts = trainingSessionRepository.findById(sessionId).orElseThrow(() -> new RuntimeException("Training session not found"));
 
         if (ts.getSignedUpCount().equals(ts.getTraining().getCapacity())) {
-            // Todo: service 3 to notify that there is no free spot
             // won't happen as in the front the button is disabled
             return;
         }
@@ -140,8 +136,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Training training = trainingRepository.findById(sessionId).get();
         Integer cena = training.getPrice();
 
+        // == Service 1 to check if the next session is free  ==
         try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client-booked-no/" + user.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + user.getClientId(),
                     HttpMethod.GET, null, Integer.class);
             Long gymId = training.getGym().getId();
             if(!gymRepository.findById(gymId).isPresent()){
@@ -152,16 +149,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
                 System.out.println("BookedNo body is empty");
                 return;
             }
-            if (bookedNo.getBody() % gym.getFreeSessionNo() == 0) {
+            if ((bookedNo.getBody()+1) % gym.getFreeSessionNo() == 0) {
                 cena = 0;
             }
         } catch (Exception e){
             e.printStackTrace();
         }
-        // Todo: increment session count
-        // Todo: service 3 to notify the user that he is signed up
 
-        // Todo: service 1 to check if the next session is free + increment session count
+        // == Service 1: increment session count ==
+        bookingsHandlerService.sendMessageToQueue('+', List.of(su));
 
         // == Service 3 to notify the user that he is signed up ==
         Map<String, String> params = new HashMap<>();
@@ -196,7 +192,8 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             session.setSignedUpCount(session.getSignedUpCount() - 1);
         }
 
-        //Todo: service 1 to decrement session count
+        // == Service 1 to decrement session count ==
+        bookingsHandlerService.sendMessageToQueue('-', List.of(signedUp));
 
         // == Service 3 to notify the user that the session is cancelled ==
         Map<String, String> params = new HashMap<>();
@@ -227,7 +224,8 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         trainingSessionRepository.deleteById(sessionId);
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);
 
-        // Todo: service 1 to decrement session count for ALL signed-up users
+        // == Service 1 to decrement session count for ALL signed-up users ==
+        bookingsHandlerService.sendMessageToQueue('-', signedUpUsers);
 
         // == Service 3 to notify all signed-up users that the session is cancelled ==
         Map<String, String> params = new HashMap<>();
@@ -245,7 +243,6 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
     }
 
-
     @Override
     public void delete(Long sessionId) {
         // this method is called by the cron job
@@ -254,8 +251,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
         TrainingSession session = trainingSessionRepository.findById(sessionId).get();
         List<SignedUp> signedUpUsers = signedUpRepository.findAllByTrainingSessionId(sessionId);
-        // Todo: service 1 to decrement session count for ALL signed-up users
 
+        // == Service 1 to decrement session count for ALL signed-up users ==
+        bookingsHandlerService.sendMessageToQueue('-', signedUpUsers);
 
         // == Service 3 to notify all signed-up users that the session is cancelled ==
         Map<String, String> params = new HashMap<>();
