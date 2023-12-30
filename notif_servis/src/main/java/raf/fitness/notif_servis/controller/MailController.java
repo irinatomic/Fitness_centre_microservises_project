@@ -85,5 +85,4 @@ public class MailController {
             return ResponseEntity.ok(mailService.findAllBySentTo(sentTo, pageable));
         }
     }
-
 }

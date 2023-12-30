@@ -3,6 +3,8 @@ package raf.fitness.user_servis.service.impl;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import org.springframework.stereotype.Service;
+import raf.fitness.user_servis.async_comm.email.EmailSenderService;
+import raf.fitness.user_servis.async_comm.email.EmailType;
 import raf.fitness.user_servis.domain.Client;
 import raf.fitness.user_servis.exception.NotFoundException;
 import raf.fitness.user_servis.mapper.ClientMapper;
@@ -13,6 +15,8 @@ import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.dto.token.*;
 
 import javax.transaction.Transactional;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 @Transactional
@@ -22,10 +26,14 @@ public class ClientServiceImpl implements ClientService {
     private ClientRepository clientRepository;
     private ClientMapper clientMapper;
 
-    public ClientServiceImpl(TokenService tokenService, ClientRepository clientRepository, ClientMapper clientMapper) {
+    // async communication
+    private EmailSenderService emailSenderService;
+
+    public ClientServiceImpl(TokenService tokenService, ClientRepository clientRepository, ClientMapper clientMapper, EmailSenderService emailSenderService) {
         this.tokenService = tokenService;
         this.clientRepository = clientRepository;
         this.clientMapper = clientMapper;
+        this.emailSenderService = emailSenderService;
     }
 
     @Override
@@ -33,7 +41,13 @@ public class ClientServiceImpl implements ClientService {
         Client client = clientMapper.clientCreateRequestDtoToClient(clientRequestDto);
         clientRepository.save(client);
 
-        // Todo: service 3 -> activation mail
+        // == Service 3 -> activation mail ==
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", client.getFirstName());
+        params.put("lastName", client.getLastName());
+        params.put("link", "http://localhost:8080/client/activate/" + client.getId());
+
+        emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, client.getEmail(), params);
         return clientMapper.clientToClientResponseDto(client);
     }
 

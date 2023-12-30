@@ -71,4 +71,3 @@ public class ClientController {
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }
-

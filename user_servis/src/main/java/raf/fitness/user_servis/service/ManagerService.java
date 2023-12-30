@@ -17,6 +17,4 @@ public interface ManagerService {
 
     void delete(Long id);
 
-    void giveFreeTraining(Long id); // client id
-
 }

@@ -30,11 +30,13 @@ public class TrainingSession {
 
     public TrainingSession() {}
 
-    public TrainingSession(Long creatorId, Integer signedUpCount, String trainingTypeName, LocalDate date, LocalTime startTime) {
+    public TrainingSession(Long creatorId, Integer signedUpCount, String trainingTypeName, LocalDate date, LocalTime startTime, Training training, Gym gym) {
         this.creatorId = creatorId;
         this.signedUpCount = signedUpCount;
         this.trainingTypeName = trainingTypeName;
         this.date = date;
         this.startTime = startTime;
+        this.training = training;
+        this.gym = gym;
     }
 }
