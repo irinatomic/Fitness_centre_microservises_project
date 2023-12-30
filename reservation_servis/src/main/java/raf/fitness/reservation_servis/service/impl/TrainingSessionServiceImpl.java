@@ -6,6 +6,8 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+import raf.fitness.reservation_servis.async_comm.email.EmailSenderService;
+import raf.fitness.reservation_servis.async_comm.email.EmailType;
 import raf.fitness.reservation_servis.domain.*;
 import raf.fitness.reservation_servis.dto.SignedUpDto;
 import raf.fitness.reservation_servis.dto.training_session.*;
@@ -17,7 +19,9 @@ import raf.fitness.reservation_servis.service.TrainingSessionService;
 import javax.transaction.Transactional;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,8 +36,10 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private SignedUpRepository signedUpRepository;
     private SignedUpMapper signedUpMapper;
     private RestTemplate reservationRestTemplate;
+    // async communication
+    private EmailSenderService emailSenderService;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, EmailSenderService emailSenderService, RestTemplate reservationRestTemplate) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
@@ -42,6 +48,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         this.signedUpRepository = signedUpRepository;
         this.signedUpMapper = signedUpMapper;
         this.reservationRestTemplate = reservationRestTemplate;
+        this.emailSenderService = emailSenderService;
     }
 
     @Override
@@ -79,6 +86,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/" + creator.getClientId(),
                     HttpMethod.GET, null, Integer.class);
             Long gymId = trainingSessionRequestDto.getGymId();
+            if(!gymRepository.findById(gymId).isPresent()){
+                System.out.println("There is no gym by that id");
+            }
             Gym gym = gymRepository.findById(gymId).get();
             if(bookedNo.getBody() == null) {
                 System.out.println("BookedNo body is empty");
@@ -93,6 +103,19 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 
         // Todo: service 1 increment session count asinh
         // Todo: service 3 to notify the creator that the session is reserved
+
+        // == Service 3 to notify the creator that the session is reserved ==
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", creator.getFirstName());
+        params.put("lastName", creator.getLastName());
+        params.put("trainingName", ts.getTraining().getName());
+        params.put("trainingDate", ts.getDate().toString());
+        params.put("trainingStartTime", ts.getStartTime().toString());
+        params.put("trainingDuration", ts.getTraining().getDuration().toString());
+        params.put("trainingPrice", String.valueOf(cena));
+        params.put("fitnessCentreName", ts.getGym().getName());
+        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, creator.getEmail(), params);
+
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
     }
 
@@ -102,6 +125,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 
         if (ts.getSignedUpCount().equals(ts.getTraining().getCapacity())) {
             // Todo: service 3 to notify that there is no free spot
+            // won't happen as in the front the button is disabled
             return;
         }
 
@@ -121,7 +145,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
                     HttpMethod.GET, null, Integer.class);
             Long gymId = training.getGym().getId();
             if(!gymRepository.findById(gymId).isPresent()){
-                System.out.println("There is no gym session by that id");
+                System.out.println("There is no gym by that id");
             }
             Gym gym = gymRepository.findById(gymId).get();
             if(bookedNo.getBody() == null) {
@@ -136,6 +160,20 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
         // Todo: increment session count
         // Todo: service 3 to notify the user that he is signed up
+
+        // Todo: service 1 to check if the next session is free + increment session count
+
+        // == Service 3 to notify the user that he is signed up ==
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", user.getFirstName());
+        params.put("lastName", user.getLastName());
+        params.put("trainingName", ts.getTraining().getName());
+        params.put("trainingDate", ts.getDate().toString());
+        params.put("trainingStartTime", ts.getStartTime().toString());
+        params.put("trainingDuration", ts.getTraining().getDuration().toString());
+        params.put("trainingPrice", String.valueOf(cena));
+        params.put("fitnessCentreName", ts.getGym().getName());
+        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, user.getEmail(), params);
     }
 
     @Override
@@ -159,7 +197,19 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
 
         //Todo: service 1 to decrement session count
-        //Todo: service 3 to notify the user that the session is cancelled
+
+        // == Service 3 to notify the user that the session is cancelled ==
+        Map<String, String> params = new HashMap<>();
+        params.put("firstName", signedUp.getFirstName());
+        params.put("lastName", signedUp.getLastName());
+        params.put("trainingName", session.getTraining().getName());
+        params.put("trainingDate", session.getDate().toString());
+        params.put("trainingStartTime", session.getStartTime().toString());
+        params.put("trainingDuration", session.getTraining().getDuration().toString());
+        params.put("trainingPrice", String.valueOf(session.getTraining().getPrice()));
+        params.put("fitnessCentreName", session.getGym().getName());
+        emailSenderService.sendMessageToQueue(EmailType.CANCELLATION, signedUp.getEmail(), params);
+
         signedUpRepository.delete(signedUp);
     }
 
@@ -178,16 +228,49 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);
 
         // Todo: service 1 to decrement session count for ALL signed-up users
-        // Todo: service 3 to notify all signed-up users that the session is cancelled
+
+        // == Service 3 to notify all signed-up users that the session is cancelled ==
+        Map<String, String> params = new HashMap<>();
+        params.put("trainingName", ts.getTraining().getName());
+        params.put("trainingDate", ts.getDate().toString());
+        params.put("trainingStartTime", ts.getStartTime().toString());
+        params.put("trainingDuration", ts.getTraining().getDuration().toString());
+        params.put("trainingPrice", String.valueOf(ts.getTraining().getPrice()));
+        params.put("fitnessCentreName", ts.getGym().getName());
+
+        for(SignedUp su : signedUpUsers) {
+            params.put("firstName", su.getFirstName());
+            params.put("lastName", su.getLastName());
+            emailSenderService.sendMessageToQueue(EmailType.CANCELLATION, su.getEmail(), params);
+        }
     }
 
 
     @Override
     public void delete(Long sessionId) {
         // this method is called by the cron job
+        if(!trainingSessionRepository.findById(sessionId).isPresent()){
+            System.out.println("There is no training session by that id");
+        }
+        TrainingSession session = trainingSessionRepository.findById(sessionId).get();
         List<SignedUp> signedUpUsers = signedUpRepository.findAllByTrainingSessionId(sessionId);
         // Todo: service 1 to decrement session count for ALL signed-up users
-        // Todo: service 3 to notify all signed-up users that the session is cancelled
+
+
+        // == Service 3 to notify all signed-up users that the session is cancelled ==
+        Map<String, String> params = new HashMap<>();
+        params.put("trainingName", session.getTraining().getName());
+        params.put("trainingDate", session.getDate().toString());
+        params.put("trainingStartTime", session.getStartTime().toString());
+        params.put("trainingDuration", session.getTraining().getDuration().toString());
+        params.put("trainingPrice", String.valueOf(session.getTraining().getPrice()));
+        params.put("fitnessCentreName", session.getGym().getName());
+
+        for(SignedUp su : signedUpUsers) {
+            params.put("firstName", su.getFirstName());
+            params.put("lastName", su.getLastName());
+            emailSenderService.sendMessageToQueue(EmailType.CANCELLATION, su.getEmail(), params);
+        }
 
         // delete all signed-up users
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);

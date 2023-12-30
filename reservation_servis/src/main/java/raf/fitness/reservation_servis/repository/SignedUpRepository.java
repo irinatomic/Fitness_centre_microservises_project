@@ -16,5 +16,7 @@ public interface SignedUpRepository extends JpaRepository<SignedUp, Long> {
     // when finding a user that wants to pull out of a session
     Optional<SignedUp> findByTrainingSessionIdAndClientId(Long trainingSessionId, Long clientId);
 
+    Optional<SignedUp> findByClientIdAndTrainingSessionId(Long clientId, Long trainingSessionId);
+
     void deleteAllByTrainingSessionId(Long trainingSessionId);
 }

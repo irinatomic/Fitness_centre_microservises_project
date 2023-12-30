@@ -58,7 +58,7 @@ public class TestDataRunner implements CommandLineRunner {
 
         // Client 2
         Client client2 = new Client(clientRole, "client_two@email.com", "CName_two", "CSurname_two", "client2", "password", "0123456789", "2023-2");
-        //client2.setActivated(true);
+        client2.setActivated(true);
         clientRepository.save(client2);
     }
 }

@@ -77,4 +77,3 @@ public class ClientController {
         return new ResponseEntity<>(clientService.getClientsBookedNo(id), HttpStatus.OK);
     }
 }
-
