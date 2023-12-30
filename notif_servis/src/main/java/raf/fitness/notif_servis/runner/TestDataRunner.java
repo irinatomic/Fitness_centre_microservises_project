@@ -91,7 +91,7 @@ public class TestDataRunner implements CommandLineRunner {
     private MailType createCancellationMT() {
         String cancellationSubject = "Training cancellation";
         String cancellationText = "Dear %firstName% %lastName%,\n\n" +
-                "A training has been canceller.\n" +
+                "A training has been cancelled.\n" +
                 "Training details:\n" +
                 "Training name: %trainingName%\n" +
                 "Training date: %trainingDate%\n" +
