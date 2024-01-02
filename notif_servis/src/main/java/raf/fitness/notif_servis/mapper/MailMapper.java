@@ -7,6 +7,7 @@ import raf.fitness.notif_servis.dto.mail.*;
 import raf.fitness.notif_servis.repository.MailTypeRepository;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
 @Component
@@ -21,6 +22,14 @@ public class MailMapper {
     public MailResponseDto mailToMailResponseDto(Mail mail) {
         MailResponseDto mailResponseDto = new MailResponseDto();
         mailResponseDto.setId(mail.getId());
+
+        // format dd-MM-yyyy
+//        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+//        String formattedDate = mail.getTimestamp().format(formatter);
+//        mailResponseDto.setTimestamp(formattedDate);
+
+        mailResponseDto.setTimestamp(mail.getTimestamp().toString());
+
         mailResponseDto.setMailType(mail.getMailType().getName());
         mailResponseDto.setSentTo(mail.getSentTo());
         mailResponseDto.setSubject(mail.getMailType().getSubject());

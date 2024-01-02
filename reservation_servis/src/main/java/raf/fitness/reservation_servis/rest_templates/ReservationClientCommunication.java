@@ -29,7 +29,7 @@ public class ReservationClientCommunication {
         @Override
         public ClientHttpResponse intercept(HttpRequest httpRequest, byte[] bytes, ClientHttpRequestExecution clientHttpRequestExecution) throws IOException {
             HttpHeaders headers = httpRequest.getHeaders();
-            headers.add("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwicm9sZSI6IkFETUlOIn0.k95WjJgSrjQ2K5c556crlihPXtcVoaiDImZLFbov3MDrbA0Gf8rSLZwTIytVGpDwmyhJKdHG9S1Ubx8cHWfFsg"); //todo
+            headers.add("Authorization", "Bearer eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwicm9sZSI6IkFETUlOIn0.k95WjJgSrjQ2K5c556crlihPXtcVoaiDImZLFbov3MDrbA0Gf8rSLZwTIytVGpDwmyhJKdHG9S1Ubx8cHWfFsg");
             return clientHttpRequestExecution.execute(httpRequest, bytes);
         }
     }

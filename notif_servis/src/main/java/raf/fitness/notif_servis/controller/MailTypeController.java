@@ -26,14 +26,13 @@ public class MailTypeController {
     }
 
     @GetMapping
-    @CheckSecurity(roles = {"ADMIN"})
     @ApiOperation(value = "Get all mail types", notes = "Get all mail types with pagination")
     @ApiImplicitParams({
             @ApiImplicitParam(name = "page", dataType = "integer", paramType = "query", value = "Page number"),
             @ApiImplicitParam(name = "size", dataType = "integer", paramType = "query", value = "Number of records per page"),
             @ApiImplicitParam(name = "sort", allowMultiple = true, dataType = "string", paramType = "query", value = "Sort criteria in the format: property(,asc|desc)")
     })
-    public ResponseEntity<Page<MailTypeResponseDto>> findAll(@RequestHeader("Authorization") String authorization, @ApiIgnore Pageable pageable) {
+    public ResponseEntity<Page<MailTypeResponseDto>> findAll(@ApiIgnore Pageable pageable) {
         return ResponseEntity.ok(mailTypeService.findAll(pageable));
     }
 
