@@ -4,8 +4,8 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/filter-free">Filter free</router-link> |
       <router-link to="/filter-reserved">Filter reserved</router-link> |
-      <router-link to="/emails-user">User emails</router-link> |
-      <router-link to="emails-admin">Admin emails</router-link> |
+      <router-link v-if="isRoleClientOrManager" to="/emails-user">User emails</router-link> |
+      <router-link v-if="isRoleAdmin" to="emails-admin">Admin emails</router-link> |
       <router-link v-if="!token" to="/login">Login</router-link> |
       <router-link v-if="!token" to="/register">Register</router-link> |
       <a v-if="token" href="#" @click="logout">Logout</a>
@@ -20,7 +20,13 @@ import { mapMutations, mapState } from 'vuex';
 export default {
   name: 'App',
   computed: {
-    ...mapState(['token']),
+    ...mapState(['token', 'role']),
+    isRoleAdmin() {
+      return this.role === 'ADMIN';
+    },
+    isRoleClientOrManager() {
+      return this.role === 'CLIENT' || this.role === 'MANAGER';
+    },
   },
   methods: {
     ...mapMutations(['REMOVE_TOKEN', 'SET_TOKEN']), 
@@ -35,6 +41,7 @@ export default {
   },
 }
 </script>
+
 
 <style>
 #app {

@@ -12,6 +12,9 @@ import raf.fitness.notif_servis.security.CheckSecurity;
 import raf.fitness.notif_servis.service.MailService;
 import springfox.documentation.annotations.ApiIgnore;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
@@ -76,14 +79,14 @@ public class MailController {
             @ApiImplicitParam(name = "sort", value = "Sort field", dataType = "string", paramType = "query")
     })
     @GetMapping("/specific")
-    @CheckSecurity(roles = {"CLIENT", "MANAGER"})
+    //@CheckSecurity(roles = {"CLIENT", "MANAGER"})
     public ResponseEntity<Page<MailResponseDto>> findSpecificEmailsForClientOrManager(
             @RequestHeader("Authorization") String authorization,
             @RequestParam(required = false) String timestampFrom,
             @RequestParam(required = false) String timestampTo,
             @RequestParam(required = false) String mailType,
             @RequestParam String sentTo,
-            @ApiIgnore Pageable pageable) {
+            @ApiIgnore Pageable pageable) throws UnsupportedEncodingException {
 
         LocalDate timestampFromLD = null;
         LocalDate timestampToLD = null;
@@ -94,14 +97,16 @@ public class MailController {
             timestampToLD = LocalDate.parse(timestampTo, formatter);
         }
 
+        String email = URLDecoder.decode(sentTo, "UTF-8");
+
         if (timestampFrom != null && timestampTo != null && mailType != null && sentTo != null) {
-            return ResponseEntity.ok(mailService.findAllBySentToAndMailTypeAndTimestampBetween(sentTo, mailType, timestampFromLD, timestampToLD, pageable));
+            return ResponseEntity.ok(mailService.findAllBySentToAndMailTypeAndTimestampBetween(email, mailType, timestampFromLD, timestampToLD, pageable));
         } else if (timestampFrom != null && timestampTo != null && sentTo != null) {
-            return ResponseEntity.ok(mailService.findAllBySentToAndTimestampBetween(sentTo, timestampFromLD, timestampToLD, pageable));
+            return ResponseEntity.ok(mailService.findAllBySentToAndTimestampBetween(email, timestampFromLD, timestampToLD, pageable));
         } else if (mailType != null && sentTo != null) {
-            return ResponseEntity.ok(mailService.findAllBySentToAndMailType(sentTo, mailType, pageable));
+            return ResponseEntity.ok(mailService.findAllBySentToAndMailType(email, mailType, pageable));
         } else {
-            return ResponseEntity.ok(mailService.findAllBySentTo(sentTo, pageable));
+            return ResponseEntity.ok(mailService.findAllBySentTo(email, pageable));
         }
     }
 }

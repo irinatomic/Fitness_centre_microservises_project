@@ -84,6 +84,7 @@ public class ManagerServiceImpl implements ManagerService {
         Claims claims = Jwts.claims();
         claims.put("id", manager.getId());
         claims.put("role", manager.getRole().getName());
+        claims.put("email", manager.getEmail());
 
         //Generate token
         return new TokenResponseDto(tokenService.generate(claims));
