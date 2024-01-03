@@ -33,6 +33,11 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
+    public AdminResponseDto findById(Long id) {
+        return adminMapper.adminToAdminResponseDto(adminRepository.findById(id).get());
+    }
+
+    @Override
     public AdminResponseDto update(Long id, AdminRequestDto adminRequestDto) {
         Admin admin = adminRepository.findByIdAndLoggedin(id, true).orElseThrow(() -> new NotFoundException(String.format("Product with id: %d not found.", id)));
         if(admin.getActivated()) {

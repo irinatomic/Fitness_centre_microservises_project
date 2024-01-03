@@ -5,6 +5,8 @@ import raf.fitness.user_servis.dto.token.*;
 
 public interface ClientService {
 
+    ClientResponseDto findById(Long id);
+
     ClientResponseDto add(ClientRequestDto clientRequestDto);
 
     ClientResponseDto activate(Long id);

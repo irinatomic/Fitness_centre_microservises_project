@@ -55,6 +55,7 @@ public class ManagerMapper {
         dto.setFirstName(manager.getFirstName());
         dto.setLastName(manager.getLastName());
         dto.setUsername(manager.getUsername());
+        dto.setRole(manager.getRole().getName());
         return dto;
     }
 }

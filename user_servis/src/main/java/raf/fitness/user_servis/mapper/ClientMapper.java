@@ -54,6 +54,7 @@ public class ClientMapper {
         dto.setLastName(client.getLastName());
         dto.setUsername(client.getUsername());
         dto.setMembershipNumber(client.getMembershipNumber());
+        dto.setRole(client.getRole().getName());
         return dto;
     }
 }

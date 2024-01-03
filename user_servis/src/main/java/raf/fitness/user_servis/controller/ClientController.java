@@ -25,9 +25,15 @@ public class ClientController {
     }
 
     @ApiOperation(value = "Add a new client", notes = "Creates a new client.")
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ClientResponseDto> add(@RequestBody @Valid ClientRequestDto clientRequestDto){
         return new ResponseEntity<>(clientService.add(clientRequestDto), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "Get client by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(clientService.findById(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Activate client by ID", notes = "Activates a client with the provided ID.")

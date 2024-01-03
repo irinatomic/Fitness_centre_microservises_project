@@ -5,6 +5,8 @@ import raf.fitness.user_servis.dto.token.*;
 
 public interface ManagerService {
 
+    ManagerResponseDto findById(Long id);
+
     ManagerResponseDto add(ManagerRequestDto managerRequestDto);
 
     ManagerResponseDto activate(Long id);

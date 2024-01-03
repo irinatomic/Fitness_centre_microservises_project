@@ -1,15 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-import jwt_decode from 'jsonwebtoken'
+import jwt from 'jsonwebtoken'
 
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
-    // client token
-    token: 'eyJhbGciOiJIUzUxMiJ9.eyJpZCI6MSwicm9sZSI6IkNMSUVOVCIsImVtYWlsIjoiY2xpZW50X29uZUBlbWFpbC5jb20ifQ.Da4FR7tf57VvxGK6eUonrEhiBiJSXeBRP4prWz-N6rJy-QWOwlhPEkL81389gG0APioLGfi50pd8PLo4vUggS',
-    role: 'CLIENT',                        // user role
-    email: 'client_one@email.com',         // user email
+    token: '',
+    user: {},                              // user object
     mailTypes: [],                         // all mail types
     emails: [],                            // current emails being shown
   },
@@ -18,15 +16,16 @@ export default new Vuex.Store({
     SET_TOKEN(state, token) {
       state.token = token;
       localStorage.token = token;
-      const decodedToken = jwt_decode(token);
-      state.role = decodedToken.role || '';
-      state.email = decodedToken.email || '';
     },
     REMOVE_TOKEN(state) {
       state.token = '';
       localStorage.token = '';
-      state.role = '';
-      state.email = '';
+    },
+    SET_USER(state, user) {
+      state.user = user;
+    },
+    REMOVE_USER(state) {
+      state.user = {};
     },
     SET_MAIL_TYPES(state, mailTypes) {
       state.mailTypes = mailTypes;
@@ -38,28 +37,58 @@ export default new Vuex.Store({
 
   actions: {
 
-    async register({ commit }, obj) {
-      console.log(JSON.stringify(obj));
-      const response = await fetch('', {
+    // REGISTER
+    async register({ commit }, { role, obj }) {
+      role = role.toLowerCase();
+      const response = await fetch(`http://localhost:8081/user-service/${role}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj)
       });
-
-      const json = await response.json();
-      commit('SET_TOKEN', json.token);
     },
 
-    async login({ commit }, obj) {
-      const response = await fetch('', {
+    // LOGIN
+    async login(context, { role, obj }) {
+      role = role.toLowerCase();
+      const response = await fetch(`http://localhost:8081/user-service/${role}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj)
       })
 
       const json = await response.json();
-      if (json.token) commit('SET_TOKEN', json.token);
-      else alert('Login failed');
+      context.commit('SET_TOKEN', json.token);
+
+      const decodedToken = jwt.decode(json.token, { complete: true });
+      const id = decodedToken.payload.id || '';
+      await context.dispatch('getUserById', { role, id });
+    },
+
+    // LOGOUT
+    async logoutUser({ commit }) {
+      const role = this.state.user.role.toString().toLowerCase();
+
+      let url = new URL(`http://localhost:8081/user-service/${role}/logout`);
+      url.searchParams.append('id', this.state.user.id);
+
+      const response = await fetch(url.toString(), { method: 'POST' });
+
+      if (response.status === 200) {
+        commit('REMOVE_TOKEN');
+        commit('REMOVE_USER');
+      }
+    },
+
+    // GET USER BY ID
+    async getUserById({ commit }, { role, id }) {
+      role = role.toLowerCase();
+      const response = await fetch(`http://localhost:8081/user-service/${role}/${id}`, {
+        method: 'GET'
+      });
+
+      const json = await response.json();
+      console.log('user: ', json)
+      commit('SET_USER', json);
     },
 
     // MAIL TYPES
@@ -73,7 +102,7 @@ export default new Vuex.Store({
       commit('SET_MAIL_TYPES', json.content);
     },
 
-    // ADMIN EMAILS
+    // EMAILS - ADMIN
     async fetchEmailsAdmin({ commit }, { selectedMailType, dateFrom, dateTo }) {
       if (selectedMailType === 'ALL') selectedMailType = null;
 
@@ -82,6 +111,9 @@ export default new Vuex.Store({
       if (dateFrom) url.searchParams.append('timestampFrom', dateFrom)
       if (dateTo) url.searchParams.append('timestampTo', dateTo);
       if (selectedMailType) url.searchParams.append('mailType', selectedMailType);
+
+      console.log(url.toString());
+      console.log(this.state.token)
 
       const response = await fetch(url.toString(), {
         headers: {
@@ -93,7 +125,7 @@ export default new Vuex.Store({
       commit('SET_EMAILS', json.content);
     },
 
-    // USER + MANAGER EMAILS
+    // EMAILS: USER + MANAGER
     async fetchEmailsUser({ commit }, { selectedMailType, dateFrom, dateTo }) {
       if (selectedMailType === 'ALL') selectedMailType = null;
 
@@ -102,7 +134,7 @@ export default new Vuex.Store({
       if (dateFrom) url.searchParams.append('timestampFrom', dateFrom)
       if (dateTo) url.searchParams.append('timestampTo', dateTo);
       if (selectedMailType) url.searchParams.append('mailType', selectedMailType);
-      url.searchParams.append('sentTo', this.state.email);
+      url.searchParams.append('sentTo', this.state.user.email);
 
       const response = await fetch(url.toString(), {
         headers: {

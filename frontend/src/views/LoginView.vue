@@ -2,6 +2,13 @@
   <div id="app">
     <form @submit.prevent="onSubmit">
       <div class="form-group">
+        <div class="role-select">
+          <select class="role" v-model="role">
+            <option value="client">client</option>
+            <option value="manager">manager</option>
+            <option value="admin">admin</option>
+          </select>
+        </div>
         <label for="username">Username:</label>
         <input id="username" v-model="form.username" class="form-control" required>
       </div>
@@ -21,6 +28,7 @@ export default {
   name: 'Login',
   data() {
     return {
+      role: 'client',
       form: {
         username: '',
         password: ''
@@ -32,7 +40,10 @@ export default {
 
     async onSubmit() {
       try {
-        await this.login(this.form);
+        await this.login({
+          role: this.role,
+          obj: this.form
+        });
         this.$router.push({ name: 'home' });
       } catch (error) {
         console.error('Login failed:', error);

@@ -23,9 +23,15 @@ public class ManagerController {
     }
 
     @ApiOperation(value = "Add a new manager", notes = "Creates a new manager.")
-    @PostMapping("/")
+    @PostMapping("/register")
     public ResponseEntity<ManagerResponseDto> add(@RequestBody @Valid ManagerRequestDto managerRequestDto){
         return new ResponseEntity<>(managerService.add(managerRequestDto), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "Get manager by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ManagerResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(managerService.findById(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Activate manager by ID", notes = "Activates a manager with the provided ID.")

@@ -27,6 +27,12 @@ public class AdminController {
         return new ResponseEntity<>(adminService.update(id, adminRequestDto), HttpStatus.OK);
     }
 
+    @ApiOperation(value = "Get admin by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(adminService.findById(id), HttpStatus.OK);
+    }
+
     @ApiOperation(value = "Login as an admin")
     @PostMapping("/login")
     public ResponseEntity<TokenResponseDto> login(@RequestBody @Valid TokenRequestDto tokenRequestDto) {

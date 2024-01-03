@@ -15,28 +15,40 @@
 </template>
 
 <script>
-import { mapMutations, mapState } from 'vuex';
+import { mapMutations, mapState, mapActions } from 'vuex';
+import jwt from 'jsonwebtoken';
 
 export default {
   name: 'App',
   computed: {
-    ...mapState(['token', 'role']),
+    ...mapState(['token', 'user']),
     isRoleAdmin() {
-      return this.role === 'ADMIN';
+      if (this.user)
+        return this.user.role == 'ADMIN';
+      return false;
     },
     isRoleClientOrManager() {
-      return this.role === 'CLIENT' || this.role === 'MANAGER';
+      if (this.user)
+        return this.user.role == 'CLIENT' || this.user.role == 'MANAGER';
+      return false;
     },
   },
   methods: {
+    ...mapActions(['logoutUser', 'getUserById']),
     ...mapMutations(['REMOVE_TOKEN', 'SET_TOKEN']), 
     logout() {
-      this.REMOVE_TOKEN();
+      this.logoutUser();
+      this.$router.push('/');
     },
   },
   mounted() {
     if (localStorage.token) {
       this.SET_TOKEN(localStorage.token);
+
+      const decodedToken = jwt.decode(localStorage.token, { complete: true });
+      const role = decodedToken.payload.role;
+      const id = decodedToken.payload.id;
+      this.getUserById({ role, id });
     }
   },
 }

@@ -37,6 +37,11 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
+    public ManagerResponseDto findById(Long id) {
+        return managerMapper.managerToManagerResponseDto(managerRepository.findById(id).get());
+    }
+
+    @Override
     public ManagerResponseDto add(ManagerRequestDto managerRequestDto) {
         Manager manager = managerMapper.managerCreateRequestDtoToManager(managerRequestDto);
         managerRepository.save(manager);
