@@ -1,12 +1,6 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import FilterFreeView from '../views/FilterFreeView.vue'
-import FilterReservedView from '../views/FilterReservedView.vue'
-import EmailsUserView from '../views/EmailsUserView.vue'
-import EmailsAdminView from '../views/EmailsAdminView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
+import HomeView from '@/views/HomeView.vue'
 
 Vue.use(VueRouter)
 
@@ -19,33 +13,47 @@ const routes = [
   {
     path: '/filter-free',
     name: 'filter-free',
-    component: FilterFreeView
+    component:() => import('@/views/filter/FilterFreeView.vue')
   },
   {
     path: '/filter-reserved',
     name: 'filter-reserved',
-    component: FilterReservedView
+    component:() => import('@/views/filter/FilterReservedView.vue')
   },
   {
     path: '/emails-user',
     name: 'emails-user',
-    component: EmailsUserView
+    component:() => import('@/views/emails/EmailsUserView.vue')
   },
   {
     path: '/emails-admin',
     name: 'emails-admin',
-    component: EmailsAdminView
+    component:() => import('@/views/emails/EmailsAdminView.vue')
   },
   {
     path: '/login',
     name: 'login',
-    component: LoginView
+    component:() => import('@/views/user/LoginView.vue')
   },
   {
     path: '/register',
     name: 'register',
-    component: RegisterView
-  }
+    component:() => import('@/views/user/RegisterView.vue')
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component:() => import('@/views/user/ProfileView.vue')
+  },
+  {
+    path: '/activate',
+    name: 'activate',
+    component: () => import('@/views/user/ActivateView.vue'),
+    props: route => ({
+      role: route.query.role,
+      id: route.query.id,
+    }),
+  },
 ]
 
 const router = new VueRouter({

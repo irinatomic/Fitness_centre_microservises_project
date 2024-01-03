@@ -4,11 +4,12 @@
       <router-link to="/">Home</router-link> |
       <router-link to="/filter-free">Filter free</router-link> |
       <router-link to="/filter-reserved">Filter reserved</router-link> |
-      <router-link v-if="isRoleClientOrManager" to="/emails-user">User emails</router-link> |
-      <router-link v-if="isRoleAdmin" to="emails-admin">Admin emails</router-link> |
+      <router-link v-if="isRoleClientOrManager" to="/emails-user">User emails</router-link>
+      <router-link v-if="isRoleAdmin" to="emails-admin">Admin emails</router-link>
       <router-link v-if="!token" to="/login">Login</router-link> |
-      <router-link v-if="!token" to="/register">Register</router-link> |
-      <a v-if="token" href="#" @click="logout">Logout</a>
+      <router-link v-if="!token" to="/register">Register</router-link>
+      <router-link v-if="token" to="/profile">Profile</router-link> |
+      <a v-if="token" href="#" @click="logout">Logout</a> 
     </nav>
     <router-view />
   </div>
@@ -23,19 +24,15 @@ export default {
   computed: {
     ...mapState(['token', 'user']),
     isRoleAdmin() {
-      if (this.user)
-        return this.user.role == 'ADMIN';
-      return false;
+      return this.user ? this.user.role === 'ADMIN' : false;
     },
     isRoleClientOrManager() {
-      if (this.user)
-        return this.user.role == 'CLIENT' || this.user.role == 'MANAGER';
-      return false;
+      return this.user ? ['CLIENT', 'MANAGER'].includes(this.user.role) : false;
     },
   },
   methods: {
     ...mapActions(['logoutUser', 'getUserById']),
-    ...mapMutations(['REMOVE_TOKEN', 'SET_TOKEN']), 
+    ...mapMutations(['REMOVE_TOKEN', 'SET_TOKEN']),
     logout() {
       this.logoutUser();
       this.$router.push('/');
@@ -54,26 +51,43 @@ export default {
 }
 </script>
 
-
 <style>
+body,
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+/* Apply gradient to the whole page */
+#app {
+  font-family: 'Gloock', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
-  color: #2c3e50;
+  color: #ffffff;
+  background: linear-gradient(#42B983, #0070BA);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 nav {
-  padding: 30px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background: linear-gradient(#225E70, #008C8B);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 nav a {
   font-weight: bold;
-  color: #2c3e50;
+  color: #ffffff;
+  margin: 0 10px;
+  text-decoration: none; 
 }
 
 nav a.router-link-exact-active {
-  color: #42b983;
+  color: #ffffff; 
 }
 </style>

@@ -23,7 +23,8 @@ public class AdminController {
 
     @ApiOperation(value = "Update an admin by ID")
     @PutMapping("/{id}")
-    public ResponseEntity<AdminResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid AdminRequestDto adminRequestDto) {
+    @CheckSecurity(roles = {"ADMIN"})
+    public ResponseEntity<AdminResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable("id") Long id, @RequestBody @Valid AdminRequestDto adminRequestDto) {
         return new ResponseEntity<>(adminService.update(id, adminRequestDto), HttpStatus.OK);
     }
 

@@ -23,7 +23,7 @@
 </template>
   
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState } from 'vuex';
 
 export default {
   name: 'EmailsTable',
@@ -48,6 +48,7 @@ th {
 td {
   border: 1px solid #225E70;
   padding: 8px;
+  background-color: white;
+  color: #225E70;
 }
 </style>
-  

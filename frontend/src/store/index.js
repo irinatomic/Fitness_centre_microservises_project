@@ -91,6 +91,40 @@ export default new Vuex.Store({
       commit('SET_USER', json);
     },
 
+    // ACTIVATE USER
+    async activateUser({ commit }, { role, id }) {
+      role = role.toLowerCase();
+
+      const url = new URL(`http://localhost:8081/user-service/${role}/activate`);
+      url.searchParams.append('id', id);
+
+      const response = await fetch(url.toString(), { method: 'POST' });
+      if (response.status == 200)
+        alert('User activated!');
+    },
+
+    // UPDATE USER
+    async updateUser({ commit }, obj) {
+      const role = this.state.user.role.toString().toLowerCase();
+      const id = this.state.user.id;
+
+      const url = new URL(`http://localhost:8081/user-service/${role}/${id}`);
+
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + this.state.token
+        },
+        body: JSON.stringify(obj)
+      });
+
+      if(response.status === 200) {
+        const json = await response.json();
+        commit('SET_USER', json);
+      }
+    },
+
     // MAIL TYPES
     async fetchMailTypes({ commit }) {
       const response = await fetch('http://localhost:8083/notif-service/mail-type', {

@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.dto.token.*;
+import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ClientService;
 
 import javax.validation.Valid;
@@ -50,7 +51,8 @@ public class ClientController {
             @ApiImplicitParam(name = "id", value = "ID of the client to update", required = true, dataType = "long", paramType = "path")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid ClientRequestDto clientRequestDto){
+    @CheckSecurity(roles = {"CLIENT"})
+    public ResponseEntity<ClientResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable("id") Long id, @RequestBody @Valid ClientRequestDto clientRequestDto){
         return new ResponseEntity<>(clientService.update(id, clientRequestDto), HttpStatus.OK);
     }
 

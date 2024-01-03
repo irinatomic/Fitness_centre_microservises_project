@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app">
     <div clas="filter-options">
       <select class="mail-type" v-model="selectedMailType">
         <option value="ALL">ALL</option>
@@ -18,10 +18,10 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import EmailsTable from '../components/EmailsTable.vue';
+import EmailsTable from '@/components/EmailsTable.vue';
 
 export default {
-  name: 'EmailsAdminView',
+  name: 'EmailsUserView',
   components: {
     EmailsTable
   },
@@ -37,32 +37,37 @@ export default {
     ...mapState(['mailTypes']),
   },
   methods: {
-    ...mapActions(['fetchMailTypes', 'fetchEmailsAdmin']),
+    ...mapActions(['fetchMailTypes', 'fetchEmailsUser']),
     filterEmails() {
-      this.fetchEmailsAdmin({
+      this.fetchEmailsUser({
         selectedMailType: this.selectedMailType,
         dateFrom: this.dateFrom,
         dateTo: this.dateTo
       });
       this.tableKey++;
     },
-
   },
   mounted() {
-    if (this.mailTypes.length === 0) {
-      this.fetchMailTypes();
-      this.fetchEmailsAdmin({
-        selectedMailType: this.selectedMailType,
-        dateFrom: this.dateFrom,
-        dateTo: this.dateTo
-      });
-      this.tableKey++;
-    }
+    if (this.mailTypes.length === 0) this.fetchMailTypes();
+
+    this.fetchEmailsUser({
+      selectedMailType: this.selectedMailType,
+      dateFrom: this.dateFrom,
+      dateTo: this.dateTo
+    });
+    this.tableKey++;
   }
-};
+}
 </script>
 
 <style scoped>
+#app {
+  padding-top: 20px;
+  display: flex;
+  align-items: center;
+  height: 100vh;
+}
+
 .filter-options {
   margin-bottom: 20px;
 }
@@ -72,8 +77,8 @@ export default {
 }
 
 .mail-type {
-  background-color: #42B983;
-  color: white;
+  background-color: white;
+  color: black;
   border: none;
   padding: 8px 12px;
   border-radius: 4px;
