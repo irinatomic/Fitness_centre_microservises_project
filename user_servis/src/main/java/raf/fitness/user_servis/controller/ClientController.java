@@ -14,6 +14,7 @@ import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ClientService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/client")
@@ -83,5 +84,11 @@ public class ClientController {
     @GetMapping("/booked-no")
     public ResponseEntity<Integer> getClientsBookedNo(@RequestParam Long id){
         return new ResponseEntity<>(clientService.getClientsBookedNo(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get forbidden clients", notes = "Get forbidden clients.")
+    @GetMapping("/forbidden")
+    public ResponseEntity<List<String>> getForbiddenClients() {
+        return new ResponseEntity<>(clientService.getForbiddenClients(), HttpStatus.OK);
     }
 }

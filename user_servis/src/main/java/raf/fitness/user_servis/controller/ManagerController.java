@@ -12,6 +12,7 @@ import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ManagerService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/manager")
@@ -69,6 +70,12 @@ public class ManagerController {
     public ResponseEntity<?> delete(@PathVariable("id") Long id){
         managerService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get forbidden clients", notes = "Get forbidden clients.")
+    @GetMapping("/forbidden")
+    public ResponseEntity<List<String>> getForbiddenClients() {
+        return new ResponseEntity<>(managerService.getForbiddenClients(), HttpStatus.OK);
     }
 }
 

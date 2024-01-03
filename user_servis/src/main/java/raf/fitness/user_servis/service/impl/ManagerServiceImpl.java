@@ -16,6 +16,7 @@ import raf.fitness.user_servis.service.ManagerService;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -105,6 +106,12 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public void delete(Long id) {
         managerRepository.deleteById(id);
+    }
+
+    @Override
+    public List<String> getForbiddenClients() {
+        List<Manager> managers = managerRepository.findAllByForbidden(true);
+        return managers.stream().map(Manager::getUsername).collect(java.util.stream.Collectors.toList());
     }
 
 }

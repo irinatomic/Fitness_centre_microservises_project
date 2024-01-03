@@ -13,7 +13,7 @@ public interface AdminService {
 
     void logout(Long id);
 
-    void forbid(Long forbiddenId, String forbiddenRole);
+    void forbid(String forbiddenUsername, String forbiddenRole);
 
-    void unforbid(Long forbiddenId, String forbiddenRole);
+    void unforbid(String forbiddenUsername, String forbiddenRole);
 }

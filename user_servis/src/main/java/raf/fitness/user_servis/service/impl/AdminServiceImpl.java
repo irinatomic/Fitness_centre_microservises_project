@@ -76,14 +76,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void forbid(Long forbiddenId, String forbiddenRole) {
+    public void forbid(String forbiddenUsername, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
-            Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
+            Client toForbid = clientRepository.findByUsername(forbiddenUsername).get();
             toForbid.setForbidden(true);
         }
 
         else if(forbiddenRole.equalsIgnoreCase("manager")) {
-            Manager toForbid = managerRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
+            Manager toForbid = managerRepository.findByUsername(forbiddenUsername).get();
             toForbid.setForbidden(true);
         }
 
@@ -91,14 +91,14 @@ public class AdminServiceImpl implements AdminService {
     }
 
     @Override
-    public void unforbid(Long forbiddenId, String forbiddenRole) {
+    public void unforbid(String forbiddenUsername, String forbiddenRole) {
         if(forbiddenRole.equalsIgnoreCase("client")) {
-            Client toForbid = clientRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
+            Client toForbid = clientRepository.findByUsername(forbiddenUsername).get();
             toForbid.setForbidden(false);
         }
 
         else if(forbiddenRole.equalsIgnoreCase("manager")) {
-            Manager toForbid = managerRepository.findById(forbiddenId).orElseThrow(() -> new NotFoundException("User not found."));
+            Manager toForbid = managerRepository.findByUsername(forbiddenUsername).get();
             toForbid.setForbidden(false);
         }
 

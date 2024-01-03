@@ -3,6 +3,8 @@ package raf.fitness.user_servis.service;
 import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.dto.token.*;
 
+import java.util.List;
+
 public interface ClientService {
 
     ClientResponseDto findById(Long id);
@@ -20,4 +22,6 @@ public interface ClientService {
     void delete(Long id);
 
     Integer getClientsBookedNo(Long id);
+
+    List<String> getForbiddenClients();
 }

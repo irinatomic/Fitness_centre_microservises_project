@@ -8,6 +8,7 @@ export default new Vuex.Store({
   state: {
     token: '',
     user: {},                              // user object
+    forbidden: [],                         // forbidden usernames (clients and managers)
     mailTypes: [],                         // all mail types
     emails: [],                            // current emails being shown
   },
@@ -32,7 +33,10 @@ export default new Vuex.Store({
     },
     SET_EMAILS(state, emails) {
       state.emails = emails;
-    }
+    },
+    SET_FORBIDDEN(state, forbidden) {
+      state.forbidden = forbidden;
+    } 
   },
 
   actions: {
@@ -123,6 +127,45 @@ export default new Vuex.Store({
         const json = await response.json();
         commit('SET_USER', json);
       }
+    },
+
+    // FETCH FORBIDDEN
+    async fetchForbidden({ commit }) {
+
+      const responseClients = await fetch('http://localhost:8081/user-service/client/forbidden', {method: 'GET'});
+      const responseManagers = await fetch('http://localhost:8081/user-service/manager/forbidden', {method: 'GET'});
+
+      const jsonClients = await responseClients.json();
+      const jsonManagers = await responseManagers.json();
+
+      commit('SET_FORBIDDEN', jsonClients.concat(jsonManagers));
+    },
+
+    async forbidUser({ commit }, {username, role}) {
+      const url = new URL('http://localhost:8081/user-service/admin/forbid');
+      url.searchParams.append('username', username);
+      url.searchParams.append('role', role);
+
+      fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token
+        }
+      });
+    },
+
+    async allowUser({ commit }, {username, role}) {
+      const url = new URL('http://localhost:8081/user-service/admin/unforbid');
+      url.searchParams.append('username', username);
+      url.searchParams.append('role', role);
+      console.log(url.toString());
+
+      fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token
+        }
+      });
     },
 
     // MAIL TYPES

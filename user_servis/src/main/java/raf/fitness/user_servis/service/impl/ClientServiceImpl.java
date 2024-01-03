@@ -16,7 +16,9 @@ import raf.fitness.user_servis.dto.token.*;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -72,6 +74,12 @@ public class ClientServiceImpl implements ClientService {
     public Integer getClientsBookedNo(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         return client.getTrainingsBookedNo();
+    }
+
+    @Override
+    public List<String> getForbiddenClients() {
+        List<Client> clients = clientRepository.findAllByForbidden(true);
+        return clients.stream().map(Client::getUsername).collect(Collectors.toList());
     }
 
     @Override

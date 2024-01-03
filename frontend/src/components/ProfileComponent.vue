@@ -28,21 +28,27 @@
         </div>
         <div class="input-group">
           <label for="password">Password:</label>
-          <input id="password" v-model="form.password" type="password" class="form-control" required>
+          <input id="password" v-model="form.password" class="form-control" required>
         </div>
         <button type="submit" class="btn btn-primary">Change profile info</button>
       </form>
+
+      <div class="forbidden" v-if="role === 'ADMIN'">
+        <ForbiddenComponent />
+      </div>
     </div>
   </div>
 </template>
 
 <script>
+import ForbiddenComponent from '@/components/ForbiddenComponent.vue';
 import { mapState, mapActions } from 'vuex';
 
 export default {
   name: 'ProfileComponent',
   data() {
     return {
+      role: '',
       form: {
         username: '',
         firstName: '',
@@ -50,19 +56,22 @@ export default {
         email: '',
         phoneNumber: ''
       }
-    }
+    };
+  },
+  components: {
+    ForbiddenComponent
   },
   computed: {
     ...mapState(['user'])
   },
   methods: {
     ...mapActions(['updateUser']),
-
     async onSubmit() {
       try {
         await this.updateUser(this.form);
         this.$router.push({ name: 'home' });
-      } catch (error) {
+      }
+      catch (error) {
         console.error('Update failed:', error);
       }
     }
@@ -73,6 +82,7 @@ export default {
     this.form.lastName = this.user.lastName;
     this.form.email = this.user.email;
     this.form.phoneNumber = this.user.phoneNumber;
+    this.role = this.user.role;
   }
 };
 </script>
@@ -82,8 +92,10 @@ export default {
   padding-top: 20px;
   display: flex;
   align-items: center;
+  justify-content: center; /* Add this line to horizontally center the content */
   height: 100vh;
 }
+
 .card-header {
   color: #008C8B;
 }
@@ -95,14 +107,16 @@ export default {
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-.form-group {
-  margin-bottom: 20px;
+.form {
+  display: flex;
+  flex-direction: column;
+  align-items: center; /* Align the content of the form vertically centered */
 }
 
-.role-select,
 .input-group {
   display: flex;
   align-items: center;
+  justify-content: center; /* Add this line to horizontally center the row */
   margin-bottom: 15px;
 }
 
@@ -116,12 +130,13 @@ label {
 
 input[type="text"],
 input[type="password"],
+input[type="email"],
+input[type="tel"],
 select {
   padding: 8px;
   border-radius: 5px;
   border: 1px solid #ccc;
   flex: 1;
-  /* Fill remaining space */
 }
 
 .btn {
@@ -138,3 +153,4 @@ select {
   background-color: #225E70;
 }
 </style>
+

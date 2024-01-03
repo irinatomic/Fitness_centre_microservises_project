@@ -9,6 +9,6 @@ export default {
   name: 'Login',
   components: {
     LoginComponent
-  },
+  }
 }
 </script>
