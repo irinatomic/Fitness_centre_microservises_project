@@ -41,11 +41,13 @@ public class TrainingSessionMapper {
         dto.setId(ts.getId());
         dto.setCreatorId(ts.getCreatorId());
         dto.setSignedUpCount(ts.getSignedUpCount());
-        dto.setTrainingTypeName(ts.getTraining().getName());
+        dto.setCapacity(ts.getTraining().getCapacity());
+        dto.setTrainingName(ts.getTraining().getName());
         dto.setDate(ts.getDate());
         dto.setStartTime(ts.getStartTime());
         dto.setTrainingId(ts.getTraining().getId());
         dto.setGymId(ts.getGym().getId());
+        dto.setGymManagerId(ts.getGym().getManagerId());
 
         // set signedUpUsersEmails
         List<SignedUp> signedUp = signedUpRepository.findAllByTrainingSessionId(ts.getId());

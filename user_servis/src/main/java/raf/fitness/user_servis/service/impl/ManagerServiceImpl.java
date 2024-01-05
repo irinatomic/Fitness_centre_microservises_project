@@ -51,7 +51,7 @@ public class ManagerServiceImpl implements ManagerService {
         Map<String, String> params = new HashMap<>();
         params.put("firstName", manager.getFirstName());
         params.put("lastName", manager.getLastName());
-        params.put("link", "http://localhost:8080/manager/activate?role=manager&id=" + manager.getId());
+        params.put("link", "http://localhost:8080/activate?role=manager&id=" + manager.getId());
 
         emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, manager.getEmail(), params);
 

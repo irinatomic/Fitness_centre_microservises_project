@@ -3,8 +3,6 @@ package raf.fitness.reservation_servis.controller;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -14,6 +12,8 @@ import raf.fitness.reservation_servis.dto.training_session.*;
 import raf.fitness.reservation_servis.service.TrainingSessionService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -41,10 +41,12 @@ public class TrainingSessionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "Bearer token", required = true, dataType = "string", paramType = "header")
     })
-    @PostMapping("/{sessionId}/sign-up")
+    @PutMapping("/sign-up")
     @CheckSecurity(roles = {"CLIENT"})
-    public ResponseEntity<Void> signUpForSession(@RequestHeader("Authorization") String authorization, @PathVariable Long sessionId, @RequestBody SignedUpDto user) {
-        trainingSessionService.signUp(sessionId, user);
+    public ResponseEntity<Void> signUpForSession(@RequestHeader("Authorization") String authorization, @RequestParam String sessionId, @RequestBody SignedUpDto user) {
+        Long sessionIdL = Long.parseLong(sessionId);
+
+        trainingSessionService.signUp(sessionIdL, user);
         return new ResponseEntity<>(HttpStatus.CREATED);
     }
 
@@ -52,10 +54,13 @@ public class TrainingSessionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "Bearer token", required = true, dataType = "string", paramType = "header")
     })
-    @DeleteMapping("/{sessionId}/cancel-as-user/{userId}")
+    @PutMapping("/cancel-as-user")
     @CheckSecurity(roles = {"CLIENT"})
-    public ResponseEntity<Void> cancelAsUser(@RequestHeader("Authorization") String authorization, @PathVariable Long sessionId, @PathVariable Long userId) {
-        trainingSessionService.cancelAsUser(sessionId, userId);
+    public ResponseEntity<Void> cancelAsUser(@RequestHeader("Authorization") String authorization, @RequestParam String sessionId, @RequestParam String userId) {
+        Long sessionIdL = Long.parseLong(sessionId);
+        Long userIdL = Long.parseLong(userId);
+
+        trainingSessionService.cancelAsUser(sessionIdL, userIdL);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -63,39 +68,41 @@ public class TrainingSessionController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "Bearer token", required = true, dataType = "string", paramType = "header")
     })
-    @DeleteMapping("/{sessionId}/cancel-as-manager")
+    @PutMapping("cancel-as-manager")
     @CheckSecurity(roles = {"MANAGER"})
-    public ResponseEntity<Void> cancelAsManager(@RequestHeader("Authorization") String authorization, @PathVariable Long sessionId) {
-        Long managerId = AuthorizationHelper.extractIdFromToken(authorization);
-        trainingSessionService.cancelAsManager(managerId, sessionId);
+    public ResponseEntity<Void> cancelAsManager(@RequestHeader("Authorization") String authorization, @RequestParam String sessionId, @RequestParam String managerId) {
+        Long sessionIdL = Long.parseLong(sessionId);
+        Long managerIdL = Long.parseLong(managerId);
+
+        trainingSessionService.cancelAsManager(managerIdL, sessionIdL);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    @ApiOperation(value = "Get all sessions for a gym")
-    @GetMapping("/gym/{gymId}")
-    public ResponseEntity<Page<TrainingSessionResponseDto>> getAllForGym(@PathVariable Long gymId, Pageable pageable) {
-        Page<TrainingSessionResponseDto> sessions = trainingSessionService.getAllForGym(gymId, pageable);
-        return new ResponseEntity<>(sessions, HttpStatus.OK);
-    }
+    @ApiOperation(value = "Find sessions with filtering")
+    @GetMapping("/filter")
+    public ResponseEntity<List<TrainingSessionResponseDto>> findAllFiltered(
+            @RequestParam(required = true) String gymId,
+            @RequestParam(required = false) String date,
+            @RequestParam(required = false) Long trainingTypeId){
 
-    @ApiOperation(value = "Get all sessions for a gym and a date")
-    @GetMapping("/gym/{gymId}/date/{date}")
-    public ResponseEntity<List<TrainingSessionResponseDto>> getAllForGymAndDate(@PathVariable Long gymId, @PathVariable LocalDate date) {
-        List<TrainingSessionResponseDto> sessions = trainingSessionService.getAllForGymAndDate(gymId, date);
-        return new ResponseEntity<>(sessions, HttpStatus.OK);
-    }
+        Long gymdIdL = Long.parseLong(gymId);
 
-    @ApiOperation(value = "Get all sessions for a gym and a training type")
-    @GetMapping("/gym/{gymId}/type/{trainingType}")
-    public ResponseEntity<List<TrainingSessionResponseDto>> getAllForGymAndTrainingType(@PathVariable Long gymId, @PathVariable String trainingType) {
-        List<TrainingSessionResponseDto> sessions = trainingSessionService.getAllForGymAndTrainingType(gymId, trainingType);
-        return new ResponseEntity<>(sessions, HttpStatus.OK);
-    }
+        LocalDate dateLD = null;
+        if(date != null) {
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            dateLD = LocalDate.parse(date, formatter);
+        }
 
-    @ApiOperation(value = "Get all sessions for a gym, date, and training type")
-    @GetMapping("/gym/{gymId}/date/{date}/type/{trainingType}")
-    public ResponseEntity<List<TrainingSessionResponseDto>> getAllForGymAndDateAndTrainingType(@PathVariable Long gymId, @PathVariable LocalDate date, @PathVariable String trainingType) {
-        List<TrainingSessionResponseDto> sessions = trainingSessionService.getAllForGymAndDateAndTrainingType(gymId, date, trainingType);
+        List<TrainingSessionResponseDto> sessions = new ArrayList<>();
+        if(date != null && trainingTypeId == null)
+            sessions = trainingSessionService.getAllForGymAndDate(gymdIdL, dateLD);
+        else if(date == null && trainingTypeId != null)
+            sessions = trainingSessionService.getAllForGymAndTrainingType(gymdIdL, trainingTypeId);
+        else if(date != null && trainingTypeId != null)
+            sessions = trainingSessionService.getAllForGymAndDateAndTrainingType(gymdIdL, dateLD, trainingTypeId);
+        else
+            sessions = trainingSessionService.getAllForGym(gymdIdL);
+
         return new ResponseEntity<>(sessions, HttpStatus.OK);
     }
 }

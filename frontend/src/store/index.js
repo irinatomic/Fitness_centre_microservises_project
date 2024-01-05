@@ -11,6 +11,11 @@ export default new Vuex.Store({
     forbidden: [],                         // forbidden usernames (clients and managers)
     mailTypes: [],                         // all mail types
     emails: [],                            // current emails being shown
+
+    gyms: [],
+    trainingTypes: [],
+    trainings: [],                         // for gym and training type (filter free)   
+    sessions: [],                          // for gym (filter reserved)
   },
 
   mutations: {
@@ -36,7 +41,16 @@ export default new Vuex.Store({
     },
     SET_FORBIDDEN(state, forbidden) {
       state.forbidden = forbidden;
-    } 
+    },
+    SET_GYMS(state, gyms) {
+      state.gyms = gyms;
+    },
+    SET_TRAINING_TYPES(state, trainingTypes) {
+      state.trainingTypes = trainingTypes;
+    },
+    SET_SESSIONS(state, sessions) {
+      state.sessions = sessions;
+    }
   },
 
   actions: {
@@ -102,7 +116,7 @@ export default new Vuex.Store({
       const url = new URL(`http://localhost:8081/user-service/${role}/activate`);
       url.searchParams.append('id', id);
 
-      const response = await fetch(url.toString(), { method: 'POST' });
+      const response = await fetch(url.toString(), { method: 'PUT' });
       if (response.status == 200)
         alert('User activated!');
     },
@@ -221,6 +235,105 @@ export default new Vuex.Store({
 
       const json = await response.json();
       commit('SET_EMAILS', json.content);
+    },
+
+    // GET GYMS
+    async fetchGyms({ commit }) {
+      const response = await fetch('http://localhost:8082/reservation-service/gym', {
+        method: 'GET',
+      });
+
+      const json = await response.json();
+      commit('SET_GYMS', json.content);
+    },
+
+    // GET TRAINING TYPES
+    async fetchTrainingTypes({ commit }) {
+      const response = await fetch('http://localhost:8082/reservation-service/training-type', {
+        method: 'GET',
+      });
+
+      const json = await response.json();
+      commit('SET_TRAINING_TYPES', json);
+    },
+
+    // SESSIONS -> FILTER 
+    async fetchSessions({ commit }, { gymId, trainingTypeId, date }) {
+      if (trainingTypeId === 'ALL') trainingTypeId = null;
+
+      let url = new URL('http://localhost:8082/reservation-service/training-sessions/filter');
+
+      if (gymId) url.searchParams.append('gymId', gymId);
+      if (date) url.searchParams.append('date', date);
+      if (trainingTypeId) url.searchParams.append('trainingTypeId', trainingTypeId);
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+      });
+
+      const json = await response.json();
+      commit('SET_SESSIONS', json);
+    },
+
+    // SESSION -> SIGN UP
+    async signUpForSession({ commit }, sessionId) {
+      const userDto = {
+        clientId: this.state.user.id,
+        firstName: this.state.user.firstName,
+        lastName: this.state.user.lastName,
+        email: this.state.user.email,
+        trainingSessionId: sessionId
+      }
+
+      const url = new URL('http://localhost:8082/reservation-service/training-sessions/sign-up');
+      url.searchParams.append('sessionId', sessionId);
+
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(userDto)
+      });
+
+      if (response.status === 200) alert('Signed up!');
+    },
+
+    // SESSION -> CANCEL AS USER
+    async cancelSessionAsUser({ commit }, sessionId) {
+      const url = new URL('http://localhost:8082/reservation-service/training-sessions/cancel-as-user');
+      url.searchParams.append('sessionId', sessionId);
+      url.searchParams.append('userId', this.state.user.id);
+
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.status === 200) alert('Canceled!');
+    },
+
+    // SESSION -> CANCEL AS MANAGER
+    async cancelSessionAsManager({ commit }, sessionId) {
+      const url = new URL('http://localhost:8082/reservation-service/training-sessions/cancel-as-manager');
+      url.searchParams.append('sessionId', sessionId);
+      url.searchParams.append('managerId', this.state.user.id);
+
+      console.log(this.state.token)
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log(response)
+      if (response.status === 200) alert('Canceled!');
     },
 
   },

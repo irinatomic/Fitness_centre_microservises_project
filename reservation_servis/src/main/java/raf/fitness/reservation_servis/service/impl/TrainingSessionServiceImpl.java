@@ -24,6 +24,7 @@ import java.util.stream.Collectors;
 public class TrainingSessionServiceImpl implements TrainingSessionService {
 
     private TrainingSessionRepository trainingSessionRepository;
+    private TrainingTypeRepository trainingTypeRepository;
     private TrainingSessionMapper trainingSessionMapper;
     private TimeSlotRepository timeSlotRepository;
     private GymRepository gymRepository;
@@ -35,8 +36,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private EmailSenderService emailSenderService;
     private BookingsHandlerService bookingsHandlerService;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
         this.trainingSessionRepository = trainingSessionRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
         this.gymRepository = gymRepository;
@@ -128,6 +130,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         SignedUp su = signedUpMapper.requestDtoToSignedUp(user);
         signedUpRepository.save(su);
         ts.setSignedUpCount(ts.getSignedUpCount() + 1);
+        trainingSessionRepository.save(ts);
 
         // Service 1: get clients trainingsBookedNo (sinh)
         if(!trainingRepository.findById(sessionId).isPresent()){
@@ -221,8 +224,8 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             throw new RuntimeException("Manager not authorized");
         }
 
-        trainingSessionRepository.deleteById(sessionId);
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);
+        trainingSessionRepository.deleteById(sessionId);
 
         // == Service 1 to decrement session count for ALL signed-up users ==
         bookingsHandlerService.sendMessageToQueue('-', signedUpUsers);
@@ -283,9 +286,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public Page<TrainingSessionResponseDto> getAllForGym(Long gymId, Pageable pageable) {
+    public List<TrainingSessionResponseDto> getAllForGym(Long gymId) {
         // signed-up users are added in the mapper
-        return trainingSessionRepository.findAllByGymId(gymId, pageable).map(trainingSessionMapper::trainingSessionToResponseDto);
+        return trainingSessionRepository.findAllByGymId(gymId).stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }
 
     @Override
@@ -295,13 +298,19 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, String trainingType) {
+    public List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, Long trainingTypeId) {
+        TrainingType tt = trainingTypeRepository.findById(trainingTypeId).get();
+        String trainingType = tt.getName();
+
         List<TrainingSession> tss = trainingSessionRepository.findAllByGymIdAndTrainingTypeName(gymId, trainingType);
         return tss.stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, String trainingType) {
+    public List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, Long trainingTypeId) {
+        TrainingType tt = trainingTypeRepository.findById(trainingTypeId).get();
+        String trainingType = tt.getName();
+
         List<TrainingSession> tss = trainingSessionRepository.findAllByGymIdAndTrainingTypeNameAndDate(gymId, trainingType, date);
         return tss.stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }

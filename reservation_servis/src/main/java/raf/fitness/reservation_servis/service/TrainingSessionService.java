@@ -24,15 +24,15 @@ public interface TrainingSessionService {
     void delete(Long sessionId);
 
     // get all sessions for a gym
-    Page<TrainingSessionResponseDto> getAllForGym(Long gymId, Pageable pageable);
+    List<TrainingSessionResponseDto> getAllForGym(Long gymId);
 
     // filter: gym + date
     List<TrainingSessionResponseDto> getAllForGymAndDate(Long gymId, LocalDate date);
 
     // filter: gym + training type
-    List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, String trainingType);
+    List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, Long trainingTypeId);
 
     // filter: gym + date + training type
-    List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, String trainingType);
+    List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, Long trainingTypeId);
 
 }

@@ -64,8 +64,34 @@ public class TestDataRunner implements CommandLineRunner {
         // Client 3
         Client client3 = new Client(clientRole, "client_three@email.com", "CName_three", "CSurname_three", "client3", "password", "0123456789", "2023-3");
         client3.setActivated(true);
-        client3.setForbidden(true);
         clientRepository.save(client3);
+
+        // Client 4
+        Client client4 = new Client(clientRole, "client_four@email.com", "CName_four", "CSurname_four", "client4", "password", "0123456789", "2023-4");
+        client4.setActivated(true);
+        clientRepository.save(client4);
+
+        // Client 5
+        Client client5 = new Client(clientRole, "client_five@email.com", "CName_five", "CSurname_five", "client5", "password", "0123456789", "2023-5");
+        client5.setActivated(true);
+        clientRepository.save(client5);
+
+        // Client 6
+        Client client6 = new Client(clientRole, "client_six@email.com", "CName_six", "CSurname_six", "client6", "password", "0123456789", "2023-6");
+        client6.setActivated(true);
+        clientRepository.save(client6);
+
+        // Client 7
+        Client client7 = new Client(clientRole, "client_seven@email.com", "CName_seven", "CSurname_seven", "client7", "password", "0123456789", "2023-7");
+        client7.setActivated(true);
+        client7.setForbidden(true);
+        clientRepository.save(client7);
+
+        // Client 8
+        Client client8 = new Client(clientRole, "client_eight", "CName_eight", "CSurname_eight", "client8", "password", "0123456789", "2023-8");
+        client8.setActivated(true);
+        client8.setForbidden(true);
+        clientRepository.save(client8);
     }
 }
 

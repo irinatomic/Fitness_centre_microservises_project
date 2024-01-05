@@ -52,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
         Map<String, String> params = new HashMap<>();
         params.put("firstName", client.getFirstName());
         params.put("lastName", client.getLastName());
-        params.put("link", "http://localhost:8080/client/activate?role=client&id=" + client.getId());
+        params.put("link", "http://localhost:8080/activate?role=client&id=" + client.getId());
 
         emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, client.getEmail(), params);
         return clientMapper.clientToClientResponseDto(client);

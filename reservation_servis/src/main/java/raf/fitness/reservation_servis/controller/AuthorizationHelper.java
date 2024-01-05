@@ -11,7 +11,9 @@ public class AuthorizationHelper {
 
         // Decode the token to extract information
         Claims claims = Jwts.parser().parseClaimsJws(token).getBody();
-        String id = claims.get("id", String.class);
-        return Long.parseLong(id);
+
+        // Ensure the claim is retrieved as a Long
+        Long id = claims.get("id", Long.class);
+        return id;
     }
 }
