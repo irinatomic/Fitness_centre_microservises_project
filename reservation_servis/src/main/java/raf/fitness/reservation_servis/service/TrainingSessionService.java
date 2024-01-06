@@ -11,7 +11,7 @@ import java.util.List;
 public interface TrainingSessionService {
 
     // create a session
-    TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto, SignedUpDto creator);
+    TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto);
 
     // sign up for a session that is created
     void signUp(Long sessionId, SignedUpDto user);

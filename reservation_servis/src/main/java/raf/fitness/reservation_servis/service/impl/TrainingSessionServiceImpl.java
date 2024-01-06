@@ -50,10 +50,12 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto, SignedUpDto creator) {
+    public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto) {
         TrainingSession ts = trainingSessionMapper.requestDtoToTrainingSession(trainingSessionRequestDto);
-        SignedUp su = signedUpMapper.requestDtoToSignedUp(creator);
+        SignedUp su = signedUpMapper.extractSignedUpFromTrainingSessionDto(trainingSessionRequestDto);
+
         trainingSessionRepository.save(ts);
+        su.setTrainingSession(ts);                  // not sending this in the dto
         signedUpRepository.save(su);
 
         // Reserve time slots
@@ -84,7 +86,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             startTime = startTime.plusMinutes(15);
         }
 
-        Long trainingId = trainingSessionRequestDto.getTrainingId();
+        Long trainingId = Long.parseLong(trainingSessionRequestDto.getTrainingId());
         if(!trainingRepository.findById(trainingId).isPresent()){
             System.out.println("There is no training by that id");
         }
@@ -94,9 +96,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         // == Service 1 to get clients trainingsBookedNo ==
 
         try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + creator.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + su.getClientId(),
                     HttpMethod.GET, null, Integer.class);
-            Long gymId = trainingSessionRequestDto.getGymId();
+            Long gymId = Long.parseLong(trainingSessionRequestDto.getGymId());
             if(!gymRepository.findById(gymId).isPresent()){
                 System.out.println("There is no gym by that id");
             }
@@ -117,15 +119,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 
         // == Service 3 to notify the creator that the session is reserved ==
         Map<String, String> params = new HashMap<>();
-        params.put("firstName", creator.getFirstName());
-        params.put("lastName", creator.getLastName());
+        params.put("firstName", su.getFirstName());
+        params.put("lastName", su.getLastName());
         params.put("trainingName", ts.getTraining().getName());
         params.put("trainingDate", ts.getDate().toString());
         params.put("trainingStartTime", ts.getStartTime().toString());
         params.put("trainingDuration", ts.getTraining().getDuration().toString());
         params.put("trainingPrice", String.valueOf(cena));
         params.put("fitnessCentreName", ts.getGym().getName());
-        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, creator.getEmail(), params);
+        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, su.getEmail(), params);
 
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
     }

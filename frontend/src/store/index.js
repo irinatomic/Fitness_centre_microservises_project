@@ -17,7 +17,9 @@ export default new Vuex.Store({
     trainings: [],                         // for a gym (filter free)
     sessions: [],                          // for gym (filter reserved)
     timeSlots: [],                         // for a gym (filter free)
-    trainings: {}                         // key: gymId, value: list of trainings
+    trainings: {},                         // key: gymId, value: list of trainings
+
+    currentTimeSlot: null                  // timeSlot being viewed when wanting to book a session
   },
 
   mutations: {
@@ -56,9 +58,11 @@ export default new Vuex.Store({
     SET_TIME_SLOTS(state, timeSlots) {
       state.timeSlots = timeSlots;
     },
-    SET_TRAININGS(state, {gymId, trainings}) {
+    SET_TRAININGS(state, { gymId, trainings }) {
       state.trainings[gymId] = trainings;
-      console.log('store ', gymId, trainings, state.trainings[gymId])
+    },
+    SET_CURRENT_TIME_SLOT(state, currentTimeSlot) {
+      state.currentTimeSlot = currentTimeSlot;
     }
   },
 
@@ -146,7 +150,7 @@ export default new Vuex.Store({
         body: JSON.stringify(obj)
       });
 
-      if(response.status === 200) {
+      if (response.status === 200) {
         const json = await response.json();
         commit('SET_USER', json);
       }
@@ -155,8 +159,8 @@ export default new Vuex.Store({
     // FETCH FORBIDDEN
     async fetchForbidden({ commit }) {
 
-      const responseClients = await fetch('http://localhost:8081/user-service/client/forbidden', {method: 'GET'});
-      const responseManagers = await fetch('http://localhost:8081/user-service/manager/forbidden', {method: 'GET'});
+      const responseClients = await fetch('http://localhost:8081/user-service/client/forbidden', { method: 'GET' });
+      const responseManagers = await fetch('http://localhost:8081/user-service/manager/forbidden', { method: 'GET' });
 
       const jsonClients = await responseClients.json();
       const jsonManagers = await responseManagers.json();
@@ -164,7 +168,7 @@ export default new Vuex.Store({
       commit('SET_FORBIDDEN', jsonClients.concat(jsonManagers));
     },
 
-    async forbidUser({ commit }, {username, role}) {
+    async forbidUser({ commit }, { username, role }) {
       const url = new URL('http://localhost:8081/user-service/admin/forbid');
       url.searchParams.append('username', username);
       url.searchParams.append('role', role);
@@ -177,7 +181,7 @@ export default new Vuex.Store({
       });
     },
 
-    async allowUser({ commit }, {username, role}) {
+    async allowUser({ commit }, { username, role }) {
       const url = new URL('http://localhost:8081/user-service/admin/unforbid');
       url.searchParams.append('username', username);
       url.searchParams.append('role', role);
@@ -291,7 +295,6 @@ export default new Vuex.Store({
         firstName: this.state.user.firstName,
         lastName: this.state.user.lastName,
         email: this.state.user.email,
-        trainingSessionId: sessionId
       }
 
       const url = new URL('http://localhost:8082/reservation-service/training-sessions/sign-up');
@@ -372,11 +375,44 @@ export default new Vuex.Store({
       });
 
       const json = await response.json();
-      console.log(json)
       commit('SET_TRAININGS', {
         gymId: gymId,
         trainings: json
       });
+    },
+
+    // CREATE A TRAINING SESSION
+    async createTrainingSession({ commit }, training) {
+
+      const trainingSessionDto = {
+        creatorId: this.state.user.id,
+        trainingTypeName: training.trainingType,
+        date: this.state.currentTimeSlot.date,
+        startTime: this.state.currentTimeSlot.startTime,
+        trainingId: training.id,
+        gymId: training.gymId,
+        clientId: this.state.user.id,
+        firstName: this.state.user.firstName,
+        lastName: this.state.user.lastName,
+        email: this.state.user.email,
+      }
+
+      const response = await fetch('http://localhost:8082/reservation-service/training-sessions', {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(trainingSessionDto)
+      })
+
+      if(response.status === 201) alert('Created!');
+      else alert('Not able to create a session');
+    },
+
+    setCurrentTimeSlot({ commit }, timeSlot) {
+      console.log('commiting: ', timeSlot)
+      commit('SET_CURRENT_TIME_SLOT', timeSlot);
     }
   },
 

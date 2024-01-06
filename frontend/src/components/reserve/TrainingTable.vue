@@ -43,13 +43,18 @@ export default {
     ...mapState(['trainings']),
   },
   mounted() {
-    // set the trainings for the selected gym
-    console.log(this.trainings)
-    this.trainingsForGym = this.trainings[this.gymId];
-    console.log("training table mounted", this.trainingsForGym)
+    console.log(this.$store.state.trainings, this.$store.state.trainings[this.gymId] == undefined)    // check
 
-    // filter based on trainingTypeId
-    // trainingsForGym = trainingsForGym.filter(training => training.trainingTypeId === trainingTypeId)
+    if (this.$store.state.trainings[this.gymId] == undefined) {
+      // If it's an observed object, convert it to a plain JavaScript object
+      const plainTrainings = JSON.parse(JSON.stringify(this.$store.state.trainings));
+      this.trainingsForGym = plainTrainings[this.gymId]
+    } else {
+      this.trainingsForGym = this.$store.state.trainings[this.gymId]
+    }
+
+
+    console.log("trainingTable mounted: ", this.trainingsForGym)
   }
 };
 </script>

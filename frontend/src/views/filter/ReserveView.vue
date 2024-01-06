@@ -1,6 +1,6 @@
 <template>
   <div id="app">
-    <div class="header"> Reserve a training session </div>
+    <div v-if="timeSlot" class="header">Reserve a training session for {{timeSlot.date}} {{timeSlot.startTime}}</div>
     <div class="table-container">
       <TrainingTable v-if="timeSlot && timeSlot.gymId" :key="tableKey" :gymId="timeSlot.gymId"/>
     </div>
@@ -37,7 +37,7 @@ export default {
   async mounted() {
     // fetch the timeSlot for our id
     this.timeSlot = this.timeSlots.find(timeSlot => timeSlot.id === this.timeSlotId);
-
+    this.$store.dispatch('setCurrentTimeSlot', this.timeSlot);
     // fetch the trainings for the selected gym
     // gymId is in this.timeSlot.gymId
     await this.$store.dispatch('fetchTrainingsForGym', this.timeSlot.gymId);

@@ -32,8 +32,8 @@ public class TrainingSessionController {
     })
     @PostMapping
     @CheckSecurity(roles = {"CLIENT"})
-    public ResponseEntity<TrainingSessionResponseDto> createSession(@RequestHeader("Authorization") String authorization, @RequestBody TrainingSessionRequestDto trainingSessionRequestDto, @RequestBody SignedUpDto creator) {
-        TrainingSessionResponseDto createdSession = trainingSessionService.create(trainingSessionRequestDto, creator);
+    public ResponseEntity<TrainingSessionResponseDto> createSession(@RequestHeader("Authorization") String authorization, @RequestBody TrainingSessionRequestDto trainingSessionRequestDto) {
+        TrainingSessionResponseDto createdSession = trainingSessionService.create(trainingSessionRequestDto);
         return new ResponseEntity<>(createdSession, HttpStatus.CREATED);
     }
 

@@ -34,14 +34,17 @@ export default {
     ...mapState(['token', 'gyms']),
   },
   methods: {
+    ...mapActions(['createTrainingSession']),
+
     reserve(training) {
-      // call the reserve session from storage
-      console.log("reserving")
+      this.$store.dispatch('createTrainingSession', training)
     },
   },
   mounted() {
     if (this.token === null) return;
     this.hasReserveOption = true;
+
+    console.log("trainingRow mounted")
 
     const gymId = this.training.gymId;
     this.gymName = this.gyms.find(gym => gym.id === gymId).name;
