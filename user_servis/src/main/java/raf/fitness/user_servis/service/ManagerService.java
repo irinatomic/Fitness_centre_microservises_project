@@ -3,7 +3,11 @@ package raf.fitness.user_servis.service;
 import raf.fitness.user_servis.dto.manager.*;
 import raf.fitness.user_servis.dto.token.*;
 
+import java.util.List;
+
 public interface ManagerService {
+
+    ManagerResponseDto findById(Long id);
 
     ManagerResponseDto add(ManagerRequestDto managerRequestDto);
 
@@ -17,4 +21,5 @@ public interface ManagerService {
 
     void delete(Long id);
 
+    List<String> getForbiddenClients();
 }

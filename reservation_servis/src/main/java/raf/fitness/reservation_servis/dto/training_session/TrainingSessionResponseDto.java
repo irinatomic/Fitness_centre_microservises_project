@@ -13,8 +13,10 @@ public class TrainingSessionResponseDto {
 
     private Long id;
     private Long creatorId;
+    private Long gymManagerId;
     private Integer signedUpCount;
-    private String trainingTypeName;
+    private Integer capacity;
+    private String trainingName;
     private LocalDate date;
     private LocalTime startTime;
     private Long trainingId;

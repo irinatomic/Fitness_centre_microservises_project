@@ -8,10 +8,11 @@ import lombok.Setter;
 public class ClientResponseDto {
 
     private Long id;
-    private String email;
     private String firstName;
     private String lastName;
+    private String email;
+    private String phoneNumber;
     private String username;
     private String membershipNumber;
-
+    private String role;
 }

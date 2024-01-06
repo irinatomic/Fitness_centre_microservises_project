@@ -16,6 +16,7 @@ import raf.fitness.user_servis.service.ManagerService;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Service
@@ -37,6 +38,11 @@ public class ManagerServiceImpl implements ManagerService {
     }
 
     @Override
+    public ManagerResponseDto findById(Long id) {
+        return managerMapper.managerToManagerResponseDto(managerRepository.findById(id).get());
+    }
+
+    @Override
     public ManagerResponseDto add(ManagerRequestDto managerRequestDto) {
         Manager manager = managerMapper.managerCreateRequestDtoToManager(managerRequestDto);
         managerRepository.save(manager);
@@ -45,7 +51,7 @@ public class ManagerServiceImpl implements ManagerService {
         Map<String, String> params = new HashMap<>();
         params.put("firstName", manager.getFirstName());
         params.put("lastName", manager.getLastName());
-        params.put("link", "http://localhost:8080/manager/activate/" + manager.getId());
+        params.put("link", "http://localhost:8080/activate?role=manager&id=" + manager.getId());
 
         emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, manager.getEmail(), params);
 
@@ -84,6 +90,7 @@ public class ManagerServiceImpl implements ManagerService {
         Claims claims = Jwts.claims();
         claims.put("id", manager.getId());
         claims.put("role", manager.getRole().getName());
+        claims.put("email", manager.getEmail());
 
         //Generate token
         return new TokenResponseDto(tokenService.generate(claims));
@@ -99,6 +106,12 @@ public class ManagerServiceImpl implements ManagerService {
     @Override
     public void delete(Long id) {
         managerRepository.deleteById(id);
+    }
+
+    @Override
+    public List<String> getForbiddenClients() {
+        List<Manager> managers = managerRepository.findAllByForbidden(true);
+        return managers.stream().map(Manager::getUsername).collect(java.util.stream.Collectors.toList());
     }
 
 }

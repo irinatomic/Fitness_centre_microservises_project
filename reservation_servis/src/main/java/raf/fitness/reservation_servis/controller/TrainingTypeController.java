@@ -12,7 +12,7 @@ import raf.fitness.reservation_servis.service.TrainingTypeService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/training-types")
+@RequestMapping("/training-type")
 public class TrainingTypeController {
 
     private final TrainingTypeService trainingTypeService;

@@ -10,6 +10,7 @@ public class TimeSlotMapper {
     public TimeSlotDto timeSlotToResponseDto(TimeSlot timeSlot) {
         TimeSlotDto dto = new TimeSlotDto();
         dto.setId(timeSlot.getId());
+        dto.setGymId(timeSlot.getGym().getId());
         dto.setDate(timeSlot.getDate());
         dto.setStartTime(timeSlot.getStartTime());
         dto.setDuration(timeSlot.getDuration());

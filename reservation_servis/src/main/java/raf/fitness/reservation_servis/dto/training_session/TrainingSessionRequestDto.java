@@ -3,6 +3,7 @@ package raf.fitness.reservation_servis.dto.training_session;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
@@ -16,16 +17,26 @@ import java.time.LocalTime;
 public class TrainingSessionRequestDto {
 
     @NotNull
-    private Long creatorId;
+    private String creatorId;
     @NotBlank
     private String trainingTypeName;
     @NotNull
-    private LocalDate date;
+    private String date;
     @NotNull
-    private LocalTime startTime;
+    private String startTime;
     @NotNull
-    private Long trainingId;
+    private String trainingId;
     @NotNull
-    private Long gymId;
+    private String gymId;
+
+    // Since we cannot send 2 DTOs in one body, we will include the SignedUpDto creator here
+    @NotNull
+    private Long clientId;
+    @NotBlank
+    private String firstName;
+    @NotBlank
+    private String lastName;
+    @Email
+    private String email;
 
 }

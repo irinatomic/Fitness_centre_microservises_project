@@ -16,7 +16,9 @@ import raf.fitness.user_servis.dto.token.*;
 
 import javax.transaction.Transactional;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional
@@ -37,6 +39,11 @@ public class ClientServiceImpl implements ClientService {
     }
 
     @Override
+    public ClientResponseDto findById(Long id) {
+        return clientMapper.clientToClientResponseDto(clientRepository.findById(id).get());
+    }
+
+    @Override
     public ClientResponseDto add(ClientRequestDto clientRequestDto) {
         Client client = clientMapper.clientCreateRequestDtoToClient(clientRequestDto);
         clientRepository.save(client);
@@ -45,7 +52,7 @@ public class ClientServiceImpl implements ClientService {
         Map<String, String> params = new HashMap<>();
         params.put("firstName", client.getFirstName());
         params.put("lastName", client.getLastName());
-        params.put("link", "http://localhost:8080/client/activate/" + client.getId());
+        params.put("link", "http://localhost:8080/activate?role=client&id=" + client.getId());
 
         emailSenderService.sendMessageToQueue(EmailType.ACTIVATION, client.getEmail(), params);
         return clientMapper.clientToClientResponseDto(client);
@@ -67,6 +74,12 @@ public class ClientServiceImpl implements ClientService {
     public Integer getClientsBookedNo(Long id) {
         Client client = clientRepository.findById(id).orElseThrow(() -> new NotFoundException(String.format("Client with id: %d not found.", id)));
         return client.getTrainingsBookedNo();
+    }
+
+    @Override
+    public List<String> getForbiddenClients() {
+        List<Client> clients = clientRepository.findAllByForbidden(true);
+        return clients.stream().map(Client::getUsername).collect(Collectors.toList());
     }
 
     @Override
@@ -94,6 +107,7 @@ public class ClientServiceImpl implements ClientService {
         Claims claims = Jwts.claims();
         claims.put("id", client.getId());
         claims.put("role", client.getRole().getName());
+        claims.put("email", client.getEmail());
 
         //Generate token
         return new TokenResponseDto(tokenService.generate(claims));

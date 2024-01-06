@@ -9,6 +9,7 @@ import raf.fitness.reservation_servis.service.TimeSlotService;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.List;
 
 @Profile({"default"})
 @Component
@@ -18,14 +19,19 @@ public class TestDataRunner implements CommandLineRunner {
     private TrainingTypeRepository trainingTypeRepository;
     private SignedUpRepository signedUpRepository;
     private TrainingRepository trainingRepository;
+    private TimeSlotRepository timeSlotRepository;
     private GymRepository gymRepository;
     private TimeSlotService timeSlotService;
 
-    public TestDataRunner(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository, SignedUpRepository signedUpRepository, TrainingRepository trainingRepository, GymRepository gymRepository, TimeSlotService timeSlotService) {
+    public TestDataRunner(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository,
+                          SignedUpRepository signedUpRepository, TrainingRepository trainingRepository,
+                          TimeSlotRepository timeSlotRepository, GymRepository gymRepository,
+                          TimeSlotService timeSlotService) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingTypeRepository = trainingTypeRepository;
         this.signedUpRepository = signedUpRepository;
         this.trainingRepository = trainingRepository;
+        this.timeSlotRepository = timeSlotRepository;
         this.gymRepository = gymRepository;
         this.timeSlotService = timeSlotService;
     }
@@ -65,13 +71,27 @@ public class TestDataRunner implements CommandLineRunner {
         trainingRepository.save(calisthenicsGym2);
         trainingRepository.save(yogaGym2);
 
-        // Create a test training session
-        TrainingSession ts1 = createTrainingSession1(gym1, yogaGym1);
+        // TRAINING SESSION (gym1, group)
+        TrainingSession ts1 = createTrainingSessionYoga(1L, gym1, yogaGym1, 1L);
         trainingSessionRepository.save(ts1);
-
-        // Create a signed up for the test training session
-        SignedUp su1_ts1 = createSignedUpForTS1(ts1);
+        SignedUp su1_ts1 = createSU1(ts1);
+        SignedUp su2_ts1 = createSU2(ts1);
         signedUpRepository.save(su1_ts1);
+        signedUpRepository.save(su2_ts1);
+
+        // TRAINING SESSION 2 (gym1, individual)
+        TrainingSession ts2 = createTrainingSession2(gym1, powerliftingGym1);
+        trainingSessionRepository.save(ts2);
+        SignedUp su1_ts2 = createSU1(ts2);
+        signedUpRepository.save(su1_ts2);
+
+        // TRAINING SESSION 3 (gym2, group)
+        TrainingSession ts3 = createTrainingSessionYoga(2L, gym2, yogaGym2, 3L);
+        trainingSessionRepository.save(ts3);
+        SignedUp su3_ts3 = createSU3(ts3);
+        SignedUp su4_ts3 = createSU4(ts3);
+        signedUpRepository.save(su3_ts3);
+        signedUpRepository.save(su4_ts3);
     }
 
     private Gym createGym1() {
@@ -150,20 +170,87 @@ public class TestDataRunner implements CommandLineRunner {
         return new Training(name, price, duration, capacity, minPeopleNo, gym2, group);
     }
 
-    private TrainingSession createTrainingSession1(Gym gym1, Training yogaGym1){
-        Long creatorId = 1L;            // clientId
-        Integer signedUpCount = 1;
-        String trainingTypeName = yogaGym1.getTrainingType().getName();
-        LocalDate date = LocalDate.now().plusDays(3);
+    private TrainingSession createTrainingSessionYoga(Long gymdId, Gym gym, Training yoga, Long creatorIdd){
+        Long creatorId = creatorIdd;            // clientId
+        Integer signedUpCount = 2;
+        String trainingTypeName = yoga.getTrainingType().getName();
+        LocalDate date = LocalDate.now().plusDays(2);
         LocalTime startTime = LocalTime.of(16, 0);
-        return new TrainingSession(creatorId, signedUpCount, trainingTypeName, date, startTime, yogaGym1, gym1);
+        TrainingSession ts = new TrainingSession(creatorId, signedUpCount, trainingTypeName, date, startTime, yoga, gym);
+
+        // reserve time slots (yoga is 1h -> 4 time slots)
+        TimeSlot ts1 = timeSlotRepository.findByGymIdAndDateAndStartTime(gymdId, date,startTime).get();
+        TimeSlot ts2 = timeSlotRepository.findByGymIdAndDateAndStartTime(gymdId, date,startTime.plusMinutes(15)).get();
+        TimeSlot ts3 = timeSlotRepository.findByGymIdAndDateAndStartTime(gymdId, date,startTime.plusMinutes(30)).get();
+        TimeSlot ts4 = timeSlotRepository.findByGymIdAndDateAndStartTime(gymdId, date,startTime.plusMinutes(45)).get();
+        ts1.setReserved(true);
+        ts2.setReserved(true);
+        ts3.setReserved(true);
+        ts4.setReserved(true);
+        timeSlotRepository.saveAll(List.of(ts1, ts2, ts3, ts4));
+
+        return ts;
     }
 
-    private SignedUp createSignedUpForTS1(TrainingSession ts1) {
+    private TrainingSession createTrainingSession2(Gym gym1, Training powerliftingGym1){
+        Long creatorId = 1L;            // clientId
+        Integer signedUpCount = 1;
+        String trainingTypeName = powerliftingGym1.getTrainingType().getName();
+        LocalDate date = LocalDate.now().plusDays(2);
+        LocalTime startTime = LocalTime.of(12, 0);
+        TrainingSession ts = new TrainingSession(creatorId, signedUpCount, trainingTypeName, date, startTime, powerliftingGym1, gym1);
+
+        // reserve time slots (powerlifting is 1h -> 4 time slots)
+        TimeSlot ts1 = timeSlotRepository.findByGymIdAndDateAndStartTime(1L, date,startTime).get();
+        TimeSlot ts2 = timeSlotRepository.findByGymIdAndDateAndStartTime(1L, date,startTime.plusMinutes(15)).get();
+        TimeSlot ts3 = timeSlotRepository.findByGymIdAndDateAndStartTime(1L, date,startTime.plusMinutes(30)).get();
+        TimeSlot ts4 = timeSlotRepository.findByGymIdAndDateAndStartTime(1L, date,startTime.plusMinutes(45)).get();
+        ts1.setReserved(true);
+        ts2.setReserved(true);
+        ts3.setReserved(true);
+        ts4.setReserved(true);
+        timeSlotRepository.saveAll(List.of(ts1, ts2, ts3, ts4));
+
+        return ts;
+    }
+
+    private SignedUp createSU1(TrainingSession ts) {
         Long clientId = 1L;
         String firstName = "CName_one";
         String lastName = "CSurname_one";
         String email = "client_one@email.com";
-        return new SignedUp(clientId, firstName, lastName, email, ts1);
+        return new SignedUp(clientId, firstName, lastName, email, ts);
+    }
+
+    private SignedUp createSU2(TrainingSession ts) {
+        Long clientId = 2L;
+        String firstName = "CName_two";
+        String lastName = "CSurname_two";
+        String email = "client_two@email.com";
+        return new SignedUp(clientId, firstName, lastName, email, ts);
+    }
+
+    private SignedUp createSU3(TrainingSession ts) {
+        Long clientId = 3L;
+        String firstName = "CName_three";
+        String lastName = "CSurname_three";
+        String email = "client_three@email.com";
+        return new SignedUp(clientId, firstName, lastName, email, ts);
+    }
+
+    private SignedUp createSU4(TrainingSession ts) {
+        Long clientId = 4L;
+        String firstName = "CName_four";
+        String lastName = "CSurname_four";
+        String email = "client_four@email.com";
+        return new SignedUp(clientId, firstName, lastName, email, ts);
+    }
+
+    private SignedUp createSU5(TrainingSession ts) {
+        Long clientId = 5L;
+        String firstName = "CName_five";
+        String lastName = "CSurname_five";
+        String email = "client_five@email.com";
+        return new SignedUp(clientId, firstName, lastName, email, ts);
     }
 }

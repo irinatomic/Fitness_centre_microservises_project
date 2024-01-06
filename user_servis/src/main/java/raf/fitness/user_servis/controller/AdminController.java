@@ -23,8 +23,15 @@ public class AdminController {
 
     @ApiOperation(value = "Update an admin by ID")
     @PutMapping("/{id}")
-    public ResponseEntity<AdminResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid AdminRequestDto adminRequestDto) {
+    @CheckSecurity(roles = {"ADMIN"})
+    public ResponseEntity<AdminResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable("id") Long id, @RequestBody @Valid AdminRequestDto adminRequestDto) {
         return new ResponseEntity<>(adminService.update(id, adminRequestDto), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get admin by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<AdminResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(adminService.findById(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Login as an admin")
@@ -47,8 +54,8 @@ public class AdminController {
     })
     @PutMapping("/forbid")
     @CheckSecurity(roles = {"ADMIN"})
-    public ResponseEntity<?> forbid(@RequestHeader("Authorization") String authorization, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
-        adminService.forbid(forbiddenId, forbiddenRole);
+    public ResponseEntity<?> forbid(@RequestHeader("Authorization") String authorization, @RequestParam String username, @RequestParam String role) {
+        adminService.forbid(username, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 
@@ -59,9 +66,9 @@ public class AdminController {
     })
     @PutMapping("/unforbid")
     @CheckSecurity(roles = {"ADMIN"})
-    public ResponseEntity<?> unforbid(@RequestHeader("Authorization") String authorization, @RequestParam Long forbiddenId, @RequestParam String forbiddenRole) {
+    public ResponseEntity<?> unforbid(@RequestHeader("Authorization") String authorization, @RequestParam String username, @RequestParam String role) {
         // Service returns void
-        adminService.unforbid(forbiddenId, forbiddenRole);
+        adminService.unforbid(username, role);
         return new ResponseEntity<>(HttpStatus.OK);
     }
 }

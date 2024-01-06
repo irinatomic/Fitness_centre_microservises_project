@@ -45,7 +45,7 @@ public class TrainingMapper {
         responseDto.setCapacity(training.getCapacity());
         responseDto.setMinPeopleNo(training.getMinPeopleNo());
         responseDto.setGymId(training.getGym().getId());
-        responseDto.setTrainingTypeId(training.getTrainingType().getId());
+        responseDto.setTrainingType(training.getTrainingType().getName());
         return responseDto;
     }
 }

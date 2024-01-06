@@ -13,7 +13,7 @@ import java.util.List;
 @Repository
 public interface TrainingSessionRepository extends JpaRepository<TrainingSession, Long> {
 
-    Page<TrainingSession> findAllByGymId(Long gymId, Pageable pageable);
+    List<TrainingSession> findAllByGymId(Long gymId);
 
     List<TrainingSession> findAllByGymIdAndDate(Long gymId, LocalDate date);
 

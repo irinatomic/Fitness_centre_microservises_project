@@ -1,6 +1,5 @@
 package raf.fitness.reservation_servis.service.impl;
 
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -24,6 +23,7 @@ import java.util.stream.Collectors;
 public class TrainingSessionServiceImpl implements TrainingSessionService {
 
     private TrainingSessionRepository trainingSessionRepository;
+    private TrainingTypeRepository trainingTypeRepository;
     private TrainingSessionMapper trainingSessionMapper;
     private TimeSlotRepository timeSlotRepository;
     private GymRepository gymRepository;
@@ -35,8 +35,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     private EmailSenderService emailSenderService;
     private BookingsHandlerService bookingsHandlerService;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
         this.trainingSessionRepository = trainingSessionRepository;
+        this.trainingTypeRepository = trainingTypeRepository;
         this.trainingSessionMapper = trainingSessionMapper;
         this.timeSlotRepository = timeSlotRepository;
         this.gymRepository = gymRepository;
@@ -49,10 +50,12 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto, SignedUpDto creator) {
+    public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto) {
         TrainingSession ts = trainingSessionMapper.requestDtoToTrainingSession(trainingSessionRequestDto);
-        SignedUp su = signedUpMapper.requestDtoToSignedUp(creator);
+        SignedUp su = signedUpMapper.extractSignedUpFromTrainingSessionDto(trainingSessionRequestDto);
+
         trainingSessionRepository.save(ts);
+        su.setTrainingSession(ts);                  // not sending this in the dto
         signedUpRepository.save(su);
 
         // Reserve time slots
@@ -60,17 +63,30 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         LocalTime startTime = ts.getStartTime();
         int timeSlotsNeeded = ts.getTraining().getDuration() / 15;
 
+        List<TimeSlot> reserved = new ArrayList<>();
+
         for (int i = 0; i < timeSlotsNeeded; i++) {
             TimeSlot timeSlot = timeSlotRepository.findByGymIdAndDateAndStartTime(ts.getGym().getId(), date, startTime).orElseThrow(() -> new RuntimeException("Time slot not found"));
-            if(timeSlot.isReserved())
+
+            // in case that a time slot is already reserved, we need to free up the reserved time slots
+            if(timeSlot.isReserved()) {
+                trainingSessionRepository.delete(ts);
+                signedUpRepository.delete(su);
+                for(TimeSlot tsReserved : reserved) {
+                    tsReserved.setReserved(false);
+                    tsReserved.setTrainingSession(null);
+                }
                 throw new RuntimeException("Time slot already reserved");
+            }
 
             timeSlot.setReserved(true);
+            reserved.add(timeSlot);                 // in case of an error, we need to free up the reserved time slots
+
             timeSlot.setTrainingSession(ts);
             startTime = startTime.plusMinutes(15);
         }
 
-        Long trainingId = trainingSessionRequestDto.getTrainingId();
+        Long trainingId = Long.parseLong(trainingSessionRequestDto.getTrainingId());
         if(!trainingRepository.findById(trainingId).isPresent()){
             System.out.println("There is no training by that id");
         }
@@ -80,9 +96,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         // == Service 1 to get clients trainingsBookedNo ==
 
         try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + creator.getClientId(),
+            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + su.getClientId(),
                     HttpMethod.GET, null, Integer.class);
-            Long gymId = trainingSessionRequestDto.getGymId();
+            Long gymId = Long.parseLong(trainingSessionRequestDto.getGymId());
             if(!gymRepository.findById(gymId).isPresent()){
                 System.out.println("There is no gym by that id");
             }
@@ -103,15 +119,15 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 
         // == Service 3 to notify the creator that the session is reserved ==
         Map<String, String> params = new HashMap<>();
-        params.put("firstName", creator.getFirstName());
-        params.put("lastName", creator.getLastName());
+        params.put("firstName", su.getFirstName());
+        params.put("lastName", su.getLastName());
         params.put("trainingName", ts.getTraining().getName());
         params.put("trainingDate", ts.getDate().toString());
         params.put("trainingStartTime", ts.getStartTime().toString());
         params.put("trainingDuration", ts.getTraining().getDuration().toString());
         params.put("trainingPrice", String.valueOf(cena));
         params.put("fitnessCentreName", ts.getGym().getName());
-        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, creator.getEmail(), params);
+        emailSenderService.sendMessageToQueue(EmailType.RESERVATION, su.getEmail(), params);
 
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
     }
@@ -128,6 +144,7 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         SignedUp su = signedUpMapper.requestDtoToSignedUp(user);
         signedUpRepository.save(su);
         ts.setSignedUpCount(ts.getSignedUpCount() + 1);
+        trainingSessionRepository.save(ts);
 
         // Service 1: get clients trainingsBookedNo (sinh)
         if(!trainingRepository.findById(sessionId).isPresent()){
@@ -221,8 +238,8 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             throw new RuntimeException("Manager not authorized");
         }
 
-        trainingSessionRepository.deleteById(sessionId);
         signedUpRepository.deleteAllByTrainingSessionId(sessionId);
+        trainingSessionRepository.deleteById(sessionId);
 
         // == Service 1 to decrement session count for ALL signed-up users ==
         bookingsHandlerService.sendMessageToQueue('-', signedUpUsers);
@@ -283,9 +300,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public Page<TrainingSessionResponseDto> getAllForGym(Long gymId, Pageable pageable) {
+    public List<TrainingSessionResponseDto> getAllForGym(Long gymId) {
         // signed-up users are added in the mapper
-        return trainingSessionRepository.findAllByGymId(gymId, pageable).map(trainingSessionMapper::trainingSessionToResponseDto);
+        return trainingSessionRepository.findAllByGymId(gymId).stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }
 
     @Override
@@ -295,13 +312,19 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     }
 
     @Override
-    public List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, String trainingType) {
+    public List<TrainingSessionResponseDto> getAllForGymAndTrainingType(Long gymId, Long trainingTypeId) {
+        TrainingType tt = trainingTypeRepository.findById(trainingTypeId).get();
+        String trainingType = tt.getName();
+
         List<TrainingSession> tss = trainingSessionRepository.findAllByGymIdAndTrainingTypeName(gymId, trainingType);
         return tss.stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, String trainingType) {
+    public List<TrainingSessionResponseDto> getAllForGymAndDateAndTrainingType(Long gymId, LocalDate date, Long trainingTypeId) {
+        TrainingType tt = trainingTypeRepository.findById(trainingTypeId).get();
+        String trainingType = tt.getName();
+
         List<TrainingSession> tss = trainingSessionRepository.findAllByGymIdAndTrainingTypeNameAndDate(gymId, trainingType, date);
         return tss.stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
     }

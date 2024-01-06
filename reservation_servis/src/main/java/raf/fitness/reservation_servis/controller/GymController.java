@@ -13,7 +13,7 @@ import raf.fitness.reservation_servis.dto.gym.*;
 import raf.fitness.reservation_servis.service.GymService;
 
 @RestController
-@RequestMapping("/gyms")
+@RequestMapping("/gym")
 public class GymController {
 
     private final GymService gymService;

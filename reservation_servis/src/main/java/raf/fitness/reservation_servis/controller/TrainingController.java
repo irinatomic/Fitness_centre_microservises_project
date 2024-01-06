@@ -10,6 +10,7 @@ import raf.fitness.reservation_servis.aspects.security.CheckSecurity;
 import raf.fitness.reservation_servis.dto.training.*;
 import raf.fitness.reservation_servis.service.TrainingService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -21,18 +22,20 @@ public class TrainingController {
     public TrainingController(TrainingService trainingService) {
         this.trainingService = trainingService;
     }
-
-    @ApiOperation(value = "Get all trainings for a gym")
-    @GetMapping("/gym/{gymId}")
-    public ResponseEntity<List<TrainingResponseDto>> findAllForGym(@PathVariable Long gymId) {
-        List<TrainingResponseDto> trainings = trainingService.findAllForGym(gymId);
-        return new ResponseEntity<>(trainings, HttpStatus.OK);
-    }
-
+    
     @ApiOperation(value = "Get all trainings for a gym and a training type")
-    @GetMapping("/gym/{gymId}/type/{trainingTypeId}")
-    public ResponseEntity<List<TrainingResponseDto>> findAllForGymAndTrainingType(@PathVariable Long gymId, @PathVariable Long trainingTypeId) {
-        List<TrainingResponseDto> trainings = trainingService.findAllForGymAndTrainingType(gymId, trainingTypeId);
+    @GetMapping("/gym")
+    public ResponseEntity<List<TrainingResponseDto>> findAll(@RequestParam String gymId, @RequestParam(required = false) String trainingTypeId) {
+        Long gymIdL = Long.parseLong(gymId);
+        Long trainingTypeIdL = null;
+
+        List<TrainingResponseDto> trainings = new ArrayList<>();
+        if (gymIdL != null && trainingTypeId != null) {
+            trainings = trainingService.findAllForGymAndTrainingType(gymIdL, trainingTypeIdL);
+        } else if (gymIdL != null) {
+            trainings = trainingService.findAllForGym(gymIdL);
+        }
+
         return new ResponseEntity<>(trainings, HttpStatus.OK);
     }
 

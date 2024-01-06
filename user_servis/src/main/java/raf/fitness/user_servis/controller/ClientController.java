@@ -10,9 +10,11 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import raf.fitness.user_servis.dto.client.*;
 import raf.fitness.user_servis.dto.token.*;
+import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ClientService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/client")
@@ -25,9 +27,15 @@ public class ClientController {
     }
 
     @ApiOperation(value = "Add a new client", notes = "Creates a new client.")
-    @PostMapping
+    @PostMapping("/register")
     public ResponseEntity<ClientResponseDto> add(@RequestBody @Valid ClientRequestDto clientRequestDto){
         return new ResponseEntity<>(clientService.add(clientRequestDto), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "Get client by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ClientResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(clientService.findById(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Activate client by ID", notes = "Activates a client with the provided ID.")
@@ -44,7 +52,8 @@ public class ClientController {
             @ApiImplicitParam(name = "id", value = "ID of the client to update", required = true, dataType = "long", paramType = "path")
     })
     @PutMapping("/{id}")
-    public ResponseEntity<ClientResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid ClientRequestDto clientRequestDto){
+    @CheckSecurity(roles = {"CLIENT"})
+    public ResponseEntity<ClientResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable("id") Long id, @RequestBody @Valid ClientRequestDto clientRequestDto){
         return new ResponseEntity<>(clientService.update(id, clientRequestDto), HttpStatus.OK);
     }
 
@@ -75,5 +84,11 @@ public class ClientController {
     @GetMapping("/booked-no")
     public ResponseEntity<Integer> getClientsBookedNo(@RequestParam Long id){
         return new ResponseEntity<>(clientService.getClientsBookedNo(id), HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get forbidden clients", notes = "Get forbidden clients.")
+    @GetMapping("/forbidden")
+    public ResponseEntity<List<String>> getForbiddenClients() {
+        return new ResponseEntity<>(clientService.getForbiddenClients(), HttpStatus.OK);
     }
 }

@@ -34,6 +34,8 @@ public class AdminMapper {
         dto.setFirstName(admin.getFirstName());
         dto.setLastName(admin.getLastName());
         dto.setUsername(admin.getUsername());
+        dto.setPhoneNumber(admin.getPhoneNumber());
+        dto.setRole(admin.getRole().getName());
         return dto;
     }
 }

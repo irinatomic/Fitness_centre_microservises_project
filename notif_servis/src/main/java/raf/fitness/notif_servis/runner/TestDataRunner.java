@@ -41,13 +41,13 @@ public class TestDataRunner implements CommandLineRunner {
         // Mails
         Mail activationMail1 = createActivationMail1(activation);
         Mail activationMail2 = createActivationMail2(activation);
-        Mail reservationMail = createReservationMail(reservation);
+        Mail reservationMail1 = createReservationMail1(reservation);
         Mail reminderMail1 = createReminderMailClient(reminder);
         Mail reminderMail2 = createReminderMailManager(reminder);
 
         mailRepository.save(activationMail1);
         mailRepository.save(activationMail2);
-        mailRepository.save(reservationMail);
+        mailRepository.save(reservationMail1);
         mailRepository.save(reminderMail1);
         mailRepository.save(reminderMail2);
     }
@@ -138,7 +138,7 @@ public class TestDataRunner implements CommandLineRunner {
         return new Mail(activationMT, LocalDate.now(), "client_two@email.com", fullText);
     }
 
-    private Mail createReservationMail(MailType reservationMT) {
+    private Mail createReservationMail1(MailType reservationMT) {
         String fullText = "Dear CName_one CSurname_one,\n\n" +
                 "You have successfully reserved a training.\n" +
                 "Training details:\n" +

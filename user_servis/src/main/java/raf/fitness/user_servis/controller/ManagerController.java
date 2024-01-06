@@ -12,6 +12,7 @@ import raf.fitness.user_servis.security.CheckSecurity;
 import raf.fitness.user_servis.service.ManagerService;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/manager")
@@ -24,9 +25,15 @@ public class ManagerController {
     }
 
     @ApiOperation(value = "Add a new manager", notes = "Creates a new manager.")
-    @PostMapping("/")
+    @PostMapping("/register")
     public ResponseEntity<ManagerResponseDto> add(@RequestBody @Valid ManagerRequestDto managerRequestDto){
         return new ResponseEntity<>(managerService.add(managerRequestDto), HttpStatus.CREATED);
+    }
+
+    @ApiOperation(value = "Get manager by id")
+    @GetMapping("/{id}")
+    public ResponseEntity<ManagerResponseDto> findById(@PathVariable("id") Long id) {
+        return new ResponseEntity<>(managerService.findById(id), HttpStatus.OK);
     }
 
     @ApiOperation(value = "Activate manager by ID", notes = "Activates a manager with the provided ID.")
@@ -40,7 +47,8 @@ public class ManagerController {
 
     @ApiOperation(value = "Update manager by ID", notes = "Updates manager details based on provided ID.")
     @PutMapping("/{id}")
-    public ResponseEntity<ManagerResponseDto> update(@PathVariable("id") Long id, @RequestBody @Valid ManagerRequestDto managerRequestDto){
+    @CheckSecurity(roles = {"MANAGER"})
+    public ResponseEntity<ManagerResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable("id") Long id, @RequestBody @Valid ManagerRequestDto managerRequestDto){
         return new ResponseEntity<>(managerService.update(id, managerRequestDto), HttpStatus.OK);
     }
 
@@ -62,6 +70,12 @@ public class ManagerController {
     public ResponseEntity<?> delete(@PathVariable("id") Long id){
         managerService.delete(id);
         return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    @ApiOperation(value = "Get forbidden clients", notes = "Get forbidden clients.")
+    @GetMapping("/forbidden")
+    public ResponseEntity<List<String>> getForbiddenClients() {
+        return new ResponseEntity<>(managerService.getForbiddenClients(), HttpStatus.OK);
     }
 }
 
