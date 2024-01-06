@@ -25,12 +25,15 @@ public class TrainingController {
     
     @ApiOperation(value = "Get all trainings for a gym and a training type")
     @GetMapping("/gym")
-    public ResponseEntity<List<TrainingResponseDto>> findAll(@RequestParam(required = false) Long gymdId, @RequestParam(required = false) Long trainingTypeId) {
+    public ResponseEntity<List<TrainingResponseDto>> findAll(@RequestParam String gymId, @RequestParam(required = false) String trainingTypeId) {
+        Long gymIdL = Long.parseLong(gymId);
+        Long trainingTypeIdL = null;
+
         List<TrainingResponseDto> trainings = new ArrayList<>();
-        if (gymdId != null && trainingTypeId != null) {
-            trainings = trainingService.findAllForGymAndTrainingType(gymdId, trainingTypeId);
-        } else if (gymdId != null) {
-            trainings = trainingService.findAllForGym(gymdId);
+        if (gymIdL != null && trainingTypeId != null) {
+            trainings = trainingService.findAllForGymAndTrainingType(gymIdL, trainingTypeIdL);
+        } else if (gymIdL != null) {
+            trainings = trainingService.findAllForGym(gymIdL);
         }
 
         return new ResponseEntity<>(trainings, HttpStatus.OK);

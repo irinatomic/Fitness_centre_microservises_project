@@ -14,6 +14,7 @@ import java.time.LocalTime;
 public class TimeSlotDto {
 
     private Long id;
+    private Long gymId;
     private LocalDate date;
     private LocalTime startTime;
     private Integer duration = 15;

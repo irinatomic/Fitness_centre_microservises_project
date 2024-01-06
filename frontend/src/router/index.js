@@ -46,6 +46,12 @@ const routes = [
     component:() => import('@/views/user/ProfileView.vue')
   },
   {
+    path: '/reserve/:timeSlotId', 
+    name: 'reserve',
+    component: () => import('@/views/filter/ReserveView.vue'),
+    props: true
+  },
+  {
     path: '/activate',
     name: 'activate',
     component: () => import('@/views/user/ActivateView.vue'),

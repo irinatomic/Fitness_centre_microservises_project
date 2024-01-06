@@ -2,7 +2,7 @@
   <div id="app">
     <div clas="filter-options">
       Gym:
-      <select id="gym" class="gym" v-model="selectedGym">
+      <select required=true id="gym" class="gym" v-model="selectedGym">
         <option value="SELECT"> Select a gym </option>
         <option v-for="gym in gyms" :key="gym.id" :value="gym.id"> {{ gym.name }} </option>
       </select>
@@ -24,7 +24,7 @@
 
 <script>
 import { mapState, mapActions } from 'vuex';
-import ReservedTable from '@/components/reserved/ReservedTable.vue';
+import ReservedTable from '@/components/filter-reserved/ReservedTable.vue';
 
 export default {
   name: 'FilterReservedView',

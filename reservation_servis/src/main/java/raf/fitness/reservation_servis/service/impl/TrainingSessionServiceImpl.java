@@ -1,6 +1,5 @@
 package raf.fitness.reservation_servis.service.impl;
 
-import org.springframework.data.domain.*;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -62,12 +61,25 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         LocalTime startTime = ts.getStartTime();
         int timeSlotsNeeded = ts.getTraining().getDuration() / 15;
 
+        List<TimeSlot> reserved = new ArrayList<>();
+
         for (int i = 0; i < timeSlotsNeeded; i++) {
             TimeSlot timeSlot = timeSlotRepository.findByGymIdAndDateAndStartTime(ts.getGym().getId(), date, startTime).orElseThrow(() -> new RuntimeException("Time slot not found"));
-            if(timeSlot.isReserved())
+
+            // in case that a time slot is already reserved, we need to free up the reserved time slots
+            if(timeSlot.isReserved()) {
+                trainingSessionRepository.delete(ts);
+                signedUpRepository.delete(su);
+                for(TimeSlot tsReserved : reserved) {
+                    tsReserved.setReserved(false);
+                    tsReserved.setTrainingSession(null);
+                }
                 throw new RuntimeException("Time slot already reserved");
+            }
 
             timeSlot.setReserved(true);
+            reserved.add(timeSlot);                 // in case of an error, we need to free up the reserved time slots
+
             timeSlot.setTrainingSession(ts);
             startTime = startTime.plusMinutes(15);
         }

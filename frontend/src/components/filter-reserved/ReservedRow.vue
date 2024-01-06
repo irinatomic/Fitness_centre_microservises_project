@@ -1,4 +1,3 @@
-<!-- ReservedRow.vue -->
 <template>
   <tr>
     <td>{{ session.id }}</td>
@@ -41,17 +40,17 @@ export default {
     signUp(sessiondId) {
       console.log(sessiondId)
       this.$store.dispatch('signUpForSession', sessiondId);
-      // this.$router.go(0);
+      this.$router.go(0);
     },
 
     cancelAsUser(sessiondId) {
       this.$store.dispatch('cancelSessionAsUser', sessiondId);
-      // this.$router.go(0);
+      this.$router.go(0);
     },
 
     cancelAsManager(sessiondId) {
       this.$store.dispatch('cancelSessionAsManager', sessiondId);
-      // this.$router.go(0);
+      this.$router.go(0);
     },
 
   },

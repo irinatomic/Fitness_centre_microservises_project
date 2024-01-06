@@ -14,8 +14,10 @@ export default new Vuex.Store({
 
     gyms: [],
     trainingTypes: [],
-    trainings: [],                         // for gym and training type (filter free)   
+    trainings: [],                         // for a gym (filter free)
     sessions: [],                          // for gym (filter reserved)
+    timeSlots: [],                         // for a gym (filter free)
+    trainings: {}                         // key: gymId, value: list of trainings
   },
 
   mutations: {
@@ -50,6 +52,13 @@ export default new Vuex.Store({
     },
     SET_SESSIONS(state, sessions) {
       state.sessions = sessions;
+    },
+    SET_TIME_SLOTS(state, timeSlots) {
+      state.timeSlots = timeSlots;
+    },
+    SET_TRAININGS(state, {gymId, trainings}) {
+      state.trainings[gymId] = trainings;
+      console.log('store ', gymId, trainings, state.trainings[gymId])
     }
   },
 
@@ -336,6 +345,39 @@ export default new Vuex.Store({
       if (response.status === 200) alert('Canceled!');
     },
 
+    // TIME SLOTS -> FILTER
+    async fetchFreeTimeSlots({ commit }, { gymId, date }) {
+      let url = new URL('http://localhost:8082/reservation-service/time-slots/free');
+
+      url.searchParams.append('gymId', gymId);          // required
+      if (date) url.searchParams.append('date', date);
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+      });
+
+      const json = await response.json();
+      commit('SET_TIME_SLOTS', json);
+    },
+
+    // FETCH TRAININGS FOR GYM 
+    async fetchTrainingsForGym({ commit }, gymId) {
+      if (this.state.trainings[gymId]) return;
+
+      const url = new URL('http://localhost:8082/reservation-service/trainings/gym');
+      url.searchParams.append('gymId', gymId);
+
+      const response = await fetch(url.toString(), {
+        method: 'GET',
+      });
+
+      const json = await response.json();
+      console.log(json)
+      commit('SET_TRAININGS', {
+        gymId: gymId,
+        trainings: json
+      });
+    }
   },
 
   getters: {

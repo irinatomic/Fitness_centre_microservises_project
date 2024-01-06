@@ -14,5 +14,5 @@ public class TrainingResponseDto {
     private Integer capacity;
     private Integer minPeopleNo;
     private Long gymId;
-    private Long trainingTypeId;
+    private String trainingType;
 }

@@ -11,10 +11,11 @@ import raf.fitness.reservation_servis.dto.TimeSlotDto;
 import raf.fitness.reservation_servis.service.TimeSlotService;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
-@RequestMapping("/timeslots")
+@RequestMapping("/time-slots")
 public class TimeSlotController {
 
     private final TimeSlotService timeSlotService;
@@ -35,9 +36,14 @@ public class TimeSlotController {
     }
 
     @ApiOperation(value = "Find free time slots for a gym")
-    @GetMapping("/free/{gymId}")
-    public ResponseEntity<List<TimeSlotDto>> findFreeTimeSlots(@PathVariable Long gymId, @RequestParam LocalDate date) {
-        List<TimeSlotDto> freeTimeSlots = timeSlotService.findFreeTimeSlots(gymId, date);
+    @GetMapping("/free")
+    public ResponseEntity<List<TimeSlotDto>> findFreeTimeSlots(@RequestParam String gymId, @RequestParam String date) {
+        Long gymIdL = Long.parseLong(gymId);
+        date = date.trim();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate dateLD = LocalDate.parse(date, formatter);
+
+        List<TimeSlotDto> freeTimeSlots = timeSlotService.findFreeTimeSlots(gymIdL, dateLD);
         return new ResponseEntity<>(freeTimeSlots, HttpStatus.OK);
     }
 }

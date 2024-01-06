@@ -66,7 +66,8 @@ body,
   text-align: center;
   color: #ffffff;
   background: linear-gradient(#42B983, #0070BA);
-  min-height: 100vh;
+  height: 100vh; /* Set a fixed height */
+  min-height: 600px; /* Set a minimum height */
   display: flex;
   flex-direction: column;
 }
