@@ -13,11 +13,13 @@ A frontend interface is planned for integration after the completion of these th
 To run the application locally:
 
 1. **Frontend**: From the [frontend](frontend) folder, run `npm run serve`.
-2. **Backend**:
-    1. Start the [MessageBroker](notif_servis/src/main/java/raf/fitness/notif_servis/MessageBroker.java).
-    2. Start the [User service](user_servis/src/main/java/raf/fitness/user_servis/UserServisApplication.java).
-    3. Start the [Reservation service](reservation_servis/src/main/java/raf/fitness/reservation_servis/ReservationServisApplication.java).
-    4. Start the [Notification service](notif_servis/src/main/java/raf/fitness/notif_servis/NotifServisApplication.java).
+2. **Backend** start the:
+    1. [Eureka - service registry](Eureka/src/main/java/app/EurekaApplication.java)
+    2. [Zuul - api gateway](Zuul/src/main/java/app/ZuulApplication.java)
+    3. [MessageBroker](notif_servis/src/main/java/raf/fitness/notif_servis/MessageBroker.java).
+    4. [User service](user_servis/src/main/java/raf/fitness/user_servis/UserServisApplication.java).
+    5. [Reservation service](reservation_servis/src/main/java/raf/fitness/reservation_servis/ReservationServisApplication.java).
+    6. [Notification service](notif_servis/src/main/java/raf/fitness/notif_servis/NotifServisApplication.java).
 
 Access databases and the Swagger UI for testing purposes using the following links:
 

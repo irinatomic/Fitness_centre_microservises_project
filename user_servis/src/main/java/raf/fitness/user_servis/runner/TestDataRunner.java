@@ -88,7 +88,7 @@ public class TestDataRunner implements CommandLineRunner {
         clientRepository.save(client7);
 
         // Client 8
-        Client client8 = new Client(clientRole, "client_eight", "CName_eight", "CSurname_eight", "client8", "password", "0123456789", "2023-8");
+        Client client8 = new Client(clientRole, "client_eight@email.com", "CName_eight", "CSurname_eight", "client8", "password", "0123456789", "2023-8");
         client8.setActivated(true);
         client8.setForbidden(true);
         clientRepository.save(client8);
