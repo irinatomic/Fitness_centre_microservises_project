@@ -14,6 +14,7 @@ import raf.fitness.reservation_servis.repository.*;
 import raf.fitness.reservation_servis.service.TrainingSessionService;
 
 import javax.transaction.Transactional;
+import javax.xml.crypto.dsig.XMLSignature;
 import java.time.*;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -115,7 +116,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
 
         // == Service 1 increment session count ==
-        bookingsHandlerService.sendMessageToQueue('+', List.of(su));
+        List<SignedUp> toSend = new ArrayList<>();
+        toSend.add(su);
+        bookingsHandlerService.sendMessageToQueue('+', toSend);
 
         // == Service 3 to notify the creator that the session is reserved ==
         Map<String, String> params = new HashMap<>();
@@ -174,7 +177,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
 
         // == Service 1: increment session count ==
-        bookingsHandlerService.sendMessageToQueue('+', List.of(su));
+        List<SignedUp> toSend = new ArrayList<>();
+        toSend.add(su);
+        bookingsHandlerService.sendMessageToQueue('+', toSend);
 
         // == Service 3 to notify the user that he is signed up ==
         Map<String, String> params = new HashMap<>();
@@ -210,7 +215,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         }
 
         // == Service 1 to decrement session count ==
-        bookingsHandlerService.sendMessageToQueue('-', List.of(signedUp));
+        List<SignedUp> toSend = new ArrayList<>();
+        toSend.add(signedUp);
+        bookingsHandlerService.sendMessageToQueue('-', toSend);
 
         // == Service 3 to notify the user that the session is cancelled ==
         Map<String, String> params = new HashMap<>();

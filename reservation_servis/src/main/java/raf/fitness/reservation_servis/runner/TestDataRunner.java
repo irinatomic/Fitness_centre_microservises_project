@@ -187,8 +187,10 @@ public class TestDataRunner implements CommandLineRunner {
         ts2.setReserved(true);
         ts3.setReserved(true);
         ts4.setReserved(true);
-        timeSlotRepository.saveAll(List.of(ts1, ts2, ts3, ts4));
-
+        timeSlotRepository.save(ts1);
+        timeSlotRepository.save(ts2);
+        timeSlotRepository.save(ts3);
+        timeSlotRepository.save(ts4);
         return ts;
     }
 
@@ -209,8 +211,10 @@ public class TestDataRunner implements CommandLineRunner {
         ts2.setReserved(true);
         ts3.setReserved(true);
         ts4.setReserved(true);
-        timeSlotRepository.saveAll(List.of(ts1, ts2, ts3, ts4));
-
+        timeSlotRepository.save(ts1);
+        timeSlotRepository.save(ts2);
+        timeSlotRepository.save(ts3);
+        timeSlotRepository.save(ts4);
         return ts;
     }
 
