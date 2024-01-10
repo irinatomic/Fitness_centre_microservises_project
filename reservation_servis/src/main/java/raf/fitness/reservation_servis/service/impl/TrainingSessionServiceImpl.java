@@ -1,8 +1,12 @@
 package raf.fitness.reservation_servis.service.impl;
 
+import io.github.resilience4j.retry.Retry;
+import javassist.NotFoundException;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
 import raf.fitness.reservation_servis.async_comm.bookings.BookingsHandlerService;
 import raf.fitness.reservation_servis.async_comm.email.*;
@@ -14,9 +18,9 @@ import raf.fitness.reservation_servis.repository.*;
 import raf.fitness.reservation_servis.service.TrainingSessionService;
 
 import javax.transaction.Transactional;
-import javax.xml.crypto.dsig.XMLSignature;
 import java.time.*;
 import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,8 +39,9 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
     // async communication
     private EmailSenderService emailSenderService;
     private BookingsHandlerService bookingsHandlerService;
+    private Retry userServiceRetry;
 
-    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService) {
+    public TrainingSessionServiceImpl(TrainingSessionRepository trainingSessionRepository, TrainingTypeRepository trainingTypeRepository, TrainingSessionMapper trainingSessionMapper, TimeSlotRepository timeSlotRepository, GymRepository gymRepository, TrainingRepository trainingRepository, SignedUpRepository signedUpRepository, SignedUpMapper signedUpMapper, RestTemplate reservationRestTemplate, EmailSenderService emailSenderService, BookingsHandlerService bookingsHandlerService, Retry userServiceRetry) {
         this.trainingSessionRepository = trainingSessionRepository;
         this.trainingTypeRepository = trainingTypeRepository;
         this.trainingSessionMapper = trainingSessionMapper;
@@ -48,7 +53,10 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         this.reservationRestTemplate = reservationRestTemplate;
         this.emailSenderService = emailSenderService;
         this.bookingsHandlerService = bookingsHandlerService;
+        this.userServiceRetry = userServiceRetry;
     }
+
+    private Integer cena = 0;
 
     @Override
     public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto) {
@@ -92,27 +100,23 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             System.out.println("There is no training by that id");
         }
         Training training = trainingRepository.findById(trainingId).get();
-        Integer cena = training.getPrice();
+        cena = training.getPrice();
 
-        // == Service 1 to get clients trainingsBookedNo ==
+        // todo - EVO GA
+        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getBookedNo(su.getClientId())).get();
+        //Integer bookedNo = getBookedNo(su.getClientId(), trainingSessionRequestDto);
 
-        try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + su.getClientId(),
-                    HttpMethod.GET, null, Integer.class);
-            Long gymId = Long.parseLong(trainingSessionRequestDto.getGymId());
-            if(!gymRepository.findById(gymId).isPresent()){
-                System.out.println("There is no gym by that id");
-            }
-            Gym gym = gymRepository.findById(gymId).get();
-            if(bookedNo.getBody() == null) {
-                System.out.println("BookedNo body is empty");
-                return null;
-            }
-            if ((bookedNo.getBody()+1) % gym.getFreeSessionNo() == 0) {
-                cena = 0;
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+        Long gymId = Long.parseLong(trainingSessionRequestDto.getGymId());
+        if(!gymRepository.findById(gymId).isPresent()){
+            System.out.println("There is no gym by that id");
+        }
+        Gym gym = gymRepository.findById(gymId).get();
+        if(bookedNo == null) {
+            System.out.println("BookedNo body is empty");
+            return null;
+        }
+        if ((bookedNo+1) % gym.getFreeSessionNo() == 0) {
+            cena = 0;
         }
 
         // == Service 1 increment session count ==
@@ -133,6 +137,27 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         emailSenderService.sendMessageToQueue(EmailType.RESERVATION, su.getEmail(), params);
 
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
+    }
+
+    private Integer getBookedNo(Long clientId){
+        ResponseEntity<Integer> bookedNo = null;
+
+        // == Service 1 to get clients trainingsBookedNo ==
+
+        try {
+             bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + clientId,
+                    HttpMethod.GET, null, Integer.class);
+
+            return bookedNo.getBody();
+        } catch (HttpClientErrorException e){
+            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND))
+                try {
+                    throw new NotFoundException(String.format("Projection with id: %d not found.", clientId));
+                } catch (NotFoundException ex) {
+                    throw new RuntimeException(ex);
+                }
+        }
+        return null;
     }
 
     @Override
@@ -157,24 +182,21 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Integer cena = training.getPrice();
 
         // == Service 1 to check if the next session is free  ==
-        try {
-            ResponseEntity<Integer> bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + user.getClientId(),
-                    HttpMethod.GET, null, Integer.class);
-            Long gymId = training.getGym().getId();
-            if(!gymRepository.findById(gymId).isPresent()){
-                System.out.println("There is no gym by that id");
-            }
-            Gym gym = gymRepository.findById(gymId).get();
-            if(bookedNo.getBody() == null) {
-                System.out.println("BookedNo body is empty");
-                return;
-            }
-            if ((bookedNo.getBody()+1) % gym.getFreeSessionNo() == 0) {
-                cena = 0;
-            }
-        } catch (Exception e){
-            e.printStackTrace();
+        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getBookedNo(su.getClientId())).get();
+
+        Long gymId = training.getGym().getId();
+        if(!gymRepository.findById(gymId).isPresent()){
+            System.out.println("There is no gym by that id");
         }
+        Gym gym = gymRepository.findById(gymId).get();
+        if(bookedNo == null) {
+            System.out.println("BookedNo body is empty");
+            return;
+        }
+        if ((bookedNo+1) % gym.getFreeSessionNo() == 0) {
+            cena = 0;
+        }
+
 
         // == Service 1: increment session count ==
         List<SignedUp> toSend = new ArrayList<>();
