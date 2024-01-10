@@ -71,7 +71,7 @@ export default new Vuex.Store({
     // REGISTER
     async register({ commit }, { role, obj }) {
       role = role.toLowerCase();
-      const response = await fetch(`http://localhost:8081/user-service/${role}/register`, {
+      const response = await fetch(`http://localhost:8762/user-service/${role}/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj)
@@ -81,7 +81,7 @@ export default new Vuex.Store({
     // LOGIN
     async login(context, { role, obj }) {
       role = role.toLowerCase();
-      const response = await fetch(`http://localhost:8081/user-service/${role}/login`, {
+      const response = await fetch(`http://localhost:8762/user-service/${role}/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj)
@@ -99,7 +99,7 @@ export default new Vuex.Store({
     async logoutUser({ commit }) {
       const role = this.state.user.role.toString().toLowerCase();
 
-      let url = new URL(`http://localhost:8081/user-service/${role}/logout`);
+      let url = new URL(`http://localhost:8762/user-service/${role}/logout`);
       url.searchParams.append('id', this.state.user.id);
 
       const response = await fetch(url.toString(), { method: 'POST' });
@@ -113,7 +113,7 @@ export default new Vuex.Store({
     // GET USER BY ID
     async getUserById({ commit }, { role, id }) {
       role = role.toLowerCase();
-      const response = await fetch(`http://localhost:8081/user-service/${role}/${id}`, {
+      const response = await fetch(`http://localhost:8762/user-service/${role}/${id}`, {
         method: 'GET'
       });
 
@@ -126,7 +126,7 @@ export default new Vuex.Store({
     async activateUser({ commit }, { role, id }) {
       role = role.toLowerCase();
 
-      const url = new URL(`http://localhost:8081/user-service/${role}/activate`);
+      const url = new URL(`http://localhost:8762/user-service/${role}/activate`);
       url.searchParams.append('id', id);
 
       const response = await fetch(url.toString(), { method: 'PUT' });
@@ -139,7 +139,7 @@ export default new Vuex.Store({
       const role = this.state.user.role.toString().toLowerCase();
       const id = this.state.user.id;
 
-      const url = new URL(`http://localhost:8081/user-service/${role}/${id}`);
+      const url = new URL(`http://localhost:8762/user-service/${role}/${id}`);
 
       const response = await fetch(url.toString(), {
         method: 'PUT',
@@ -159,8 +159,8 @@ export default new Vuex.Store({
     // FETCH FORBIDDEN
     async fetchForbidden({ commit }) {
 
-      const responseClients = await fetch('http://localhost:8081/user-service/client/forbidden', { method: 'GET' });
-      const responseManagers = await fetch('http://localhost:8081/user-service/manager/forbidden', { method: 'GET' });
+      const responseClients = await fetch('http://localhost:8762/user-service/client/forbidden', { method: 'GET' });
+      const responseManagers = await fetch('http://localhost:8762/user-service/manager/forbidden', { method: 'GET' });
 
       const jsonClients = await responseClients.json();
       const jsonManagers = await responseManagers.json();
@@ -169,7 +169,7 @@ export default new Vuex.Store({
     },
 
     async forbidUser({ commit }, { username, role }) {
-      const url = new URL('http://localhost:8081/user-service/admin/forbid');
+      const url = new URL('http://localhost:8762/user-service/admin/forbid');
       url.searchParams.append('username', username);
       url.searchParams.append('role', role);
 
@@ -182,7 +182,7 @@ export default new Vuex.Store({
     },
 
     async allowUser({ commit }, { username, role }) {
-      const url = new URL('http://localhost:8081/user-service/admin/unforbid');
+      const url = new URL('http://localhost:8762/user-service/admin/unforbid');
       url.searchParams.append('username', username);
       url.searchParams.append('role', role);
       console.log(url.toString());
@@ -197,7 +197,7 @@ export default new Vuex.Store({
 
     // MAIL TYPES
     async fetchMailTypes({ commit }) {
-      const response = await fetch('http://localhost:8083/notif-service/mail-type', {
+      const response = await fetch('http://localhost:8762/notif-service/mail-type', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' }
       });
@@ -210,7 +210,7 @@ export default new Vuex.Store({
     async fetchEmailsAdmin({ commit }, { selectedMailType, dateFrom, dateTo }) {
       if (selectedMailType === 'ALL') selectedMailType = null;
 
-      let url = new URL('http://localhost:8083/notif-service/mail/all');
+      let url = new URL('http://localhost:8762/notif-service/mail/all');
 
       if (dateFrom) url.searchParams.append('timestampFrom', dateFrom)
       if (dateTo) url.searchParams.append('timestampTo', dateTo);
@@ -233,7 +233,7 @@ export default new Vuex.Store({
     async fetchEmailsUser({ commit }, { selectedMailType, dateFrom, dateTo }) {
       if (selectedMailType === 'ALL') selectedMailType = null;
 
-      let url = new URL('http://localhost:8083/notif-service/mail/specific');
+      let url = new URL('http://localhost:8762/notif-service/mail/specific');
 
       if (dateFrom) url.searchParams.append('timestampFrom', dateFrom)
       if (dateTo) url.searchParams.append('timestampTo', dateTo);
@@ -252,7 +252,7 @@ export default new Vuex.Store({
 
     // GET GYMS
     async fetchGyms({ commit }) {
-      const response = await fetch('http://localhost:8082/reservation-service/gym', {
+      const response = await fetch('http://localhost:8762/reservation-service/gym', {
         method: 'GET',
       });
 
@@ -262,7 +262,7 @@ export default new Vuex.Store({
 
     // GET TRAINING TYPES
     async fetchTrainingTypes({ commit }) {
-      const response = await fetch('http://localhost:8082/reservation-service/training-type', {
+      const response = await fetch('http://localhost:8762/reservation-service/training-type', {
         method: 'GET',
       });
 
@@ -274,7 +274,7 @@ export default new Vuex.Store({
     async fetchSessions({ commit }, { gymId, trainingTypeId, date }) {
       if (trainingTypeId === 'ALL') trainingTypeId = null;
 
-      let url = new URL('http://localhost:8082/reservation-service/training-sessions/filter');
+      let url = new URL('http://localhost:8762/reservation-service/training-sessions/filter');
 
       if (gymId) url.searchParams.append('gymId', gymId);
       if (date) url.searchParams.append('date', date);
@@ -297,7 +297,7 @@ export default new Vuex.Store({
         email: this.state.user.email,
       }
 
-      const url = new URL('http://localhost:8082/reservation-service/training-sessions/sign-up');
+      const url = new URL('http://localhost:8762/reservation-service/training-sessions/sign-up');
       url.searchParams.append('sessionId', sessionId);
 
       const response = await fetch(url.toString(), {
@@ -314,7 +314,7 @@ export default new Vuex.Store({
 
     // SESSION -> CANCEL AS USER
     async cancelSessionAsUser({ commit }, sessionId) {
-      const url = new URL('http://localhost:8082/reservation-service/training-sessions/cancel-as-user');
+      const url = new URL('http://localhost:8762/reservation-service/training-sessions/cancel-as-user');
       url.searchParams.append('sessionId', sessionId);
       url.searchParams.append('userId', this.state.user.id);
 
@@ -331,7 +331,7 @@ export default new Vuex.Store({
 
     // SESSION -> CANCEL AS MANAGER
     async cancelSessionAsManager({ commit }, sessionId) {
-      const url = new URL('http://localhost:8082/reservation-service/training-sessions/cancel-as-manager');
+      const url = new URL('http://localhost:8762/reservation-service/training-sessions/cancel-as-manager');
       url.searchParams.append('sessionId', sessionId);
       url.searchParams.append('managerId', this.state.user.id);
 
@@ -350,7 +350,7 @@ export default new Vuex.Store({
 
     // TIME SLOTS -> FILTER
     async fetchFreeTimeSlots({ commit }, { gymId, date }) {
-      let url = new URL('http://localhost:8082/reservation-service/time-slots/free');
+      let url = new URL('http://localhost:8762/reservation-service/time-slots/free');
 
       url.searchParams.append('gymId', gymId);          // required
       if (date) url.searchParams.append('date', date);
@@ -367,7 +367,7 @@ export default new Vuex.Store({
     async fetchTrainingsForGym({ commit }, gymId) {
       if (this.state.trainings[gymId]) return;
 
-      const url = new URL('http://localhost:8082/reservation-service/trainings/gym');
+      const url = new URL('http://localhost:8762/reservation-service/trainings/gym');
       url.searchParams.append('gymId', gymId);
 
       const response = await fetch(url.toString(), {
@@ -397,7 +397,7 @@ export default new Vuex.Store({
         email: this.state.user.email,
       }
 
-      const response = await fetch('http://localhost:8082/reservation-service/training-sessions', {
+      const response = await fetch('http://localhost:8762/reservation-service/training-sessions', {
         method: 'POST',
         headers: {
           'Authorization': 'Bearer ' + this.state.token,

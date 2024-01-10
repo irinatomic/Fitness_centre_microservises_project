@@ -25,23 +25,23 @@ Access databases and the Swagger UI for testing purposes using the following lin
 
 **User Service**
 
-| Name                     | Access link                                                                                                      |
-|--------------------------|------------------------------------------------------------------------------------------------------------------|
-| Database                 | [http://localhost:8081/user-service/h2-console](http://localhost:8081/user-service/h2-console)                   |
-| JDBC Driver              | jdbc:h2:mem:user-service-db                                                                                      |
-| Swagger UI for API calls | [http://localhost:8081/user-service/swagger-ui.html#/](http://localhost:8081/user-service/swagger-ui.html#/)     |
+| Name                     | Access link                                                                            |
+|--------------------------|----------------------------------------------------------------------------------------|
+| Database                 | [http://localhost:8081/h2-console](http://localhost:8081/h2-console)                   |
+| JDBC Driver              | jdbc:h2:mem:user-service-db                                                            |
+| Swagger UI for API calls | [http://localhost:8081/swagger-ui.html#/](http://localhost:8081/swagger-ui.html#/)     |
 
 **Reservation Service**
-| Name                     | Access link                                                                                                      |
-|--------------------------|------------------------------------------------------------------------------------------------------------------|
-| Database                 | [http://localhost:8082/reservation-service/h2-console](http://localhost:8082/reservation-service/h2-console)     |
-| JDBC Driver              | jdbc:h2:mem:reservation-service-db                                                                               |
-| Swagger UI for API calls | [http://localhost:8082/reservation-service/swagger-ui.html#/](http://localhost:8082/reservation-service/swagger-ui.html#/)|
+| Name                     | Access link                                                                       |
+|--------------------------|-----------------------------------------------------------------------------------|
+| Database                 | [http://localhost:8082/h2-console](http://localhost:8082/h2-console)              |
+| JDBC Driver              | jdbc:h2:mem:reservation-service-db                                                |
+| Swagger UI for API calls | [http://localhost:8082/swagger-ui.html#/](http://localhost:8082/swagger-ui.html#/)|
 
 **Notification Service**
 
-| Name                     | Access link                                                                                                       |
-|--------------------------|-------------------------------------------------------------------------------------------------------------------|
-| Database                 | [http://localhost:8083/notif-service/h2-console](http://localhost:8083/notif-service/h2-console)                  |
-| JDBC Driver              | jdbc:h2:mem:notif-service-db                                                                                      |
-| Swagger UI for API calls | [http://localhost:8083/notif-service/swagger-ui.html#/](http://localhost:8083/notif-service/swagger-ui.html#/)    |
+| Name                     | Access link                                                                           |
+|--------------------------|---------------------------------------------------------------------------------------|
+| Database                 | [http://localhost:8083/h2-console](http://localhost:8083/h2-console)                  |
+| JDBC Driver              | jdbc:h2:mem:notif-service-db                                                          |
+| Swagger UI for API calls | [http://localhost:8083/swagger-ui.html#/](http://localhost:8083/swagger-ui.html#/)    |
