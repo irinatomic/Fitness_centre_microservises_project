@@ -1,7 +1,6 @@
 package raf.fitness.reservation_servis.service.impl;
 
 import io.github.resilience4j.retry.Retry;
-import javassist.NotFoundException;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,7 +19,6 @@ import raf.fitness.reservation_servis.service.TrainingSessionService;
 import javax.transaction.Transactional;
 import java.time.*;
 import java.util.*;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 @Service
@@ -55,8 +53,6 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         this.bookingsHandlerService = bookingsHandlerService;
         this.userServiceRetry = userServiceRetry;
     }
-
-    private Integer cena = 0;
 
     @Override
     public TrainingSessionResponseDto create(TrainingSessionRequestDto trainingSessionRequestDto) {
@@ -100,22 +96,12 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
             System.out.println("There is no training by that id");
         }
         Training training = trainingRepository.findById(trainingId).get();
-        cena = training.getPrice();
+        Integer cena = training.getPrice();
 
-        // todo - EVO GA
-        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getBookedNo(su.getClientId())).get();
-        //Integer bookedNo = getBookedNo(su.getClientId(), trainingSessionRequestDto);
-
-        Long gymId = Long.parseLong(trainingSessionRequestDto.getGymId());
-        if(!gymRepository.findById(gymId).isPresent()){
-            System.out.println("There is no gym by that id");
-        }
-        Gym gym = gymRepository.findById(gymId).get();
-        if(bookedNo == null) {
-            System.out.println("BookedNo body is empty");
-            return null;
-        }
-        if ((bookedNo+1) % gym.getFreeSessionNo() == 0) {
+        // == Service 1 to get clients trainingsBookedNo ==
+        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getClientsBookedNo(su.getClientId())).get();
+        Gym gym = gymRepository.findById(ts.getGym().getId()).get();
+        if ((bookedNo + 1) % gym.getFreeSessionNo() == 0) {
             cena = 0;
         }
 
@@ -137,27 +123,6 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         emailSenderService.sendMessageToQueue(EmailType.RESERVATION, su.getEmail(), params);
 
         return trainingSessionMapper.trainingSessionToResponseDto(ts);
-    }
-
-    private Integer getBookedNo(Long clientId){
-        ResponseEntity<Integer> bookedNo = null;
-
-        // == Service 1 to get clients trainingsBookedNo ==
-
-        try {
-             bookedNo = reservationRestTemplate.exchange("/client/booked-no/?id=" + clientId,
-                    HttpMethod.GET, null, Integer.class);
-
-            return bookedNo.getBody();
-        } catch (HttpClientErrorException e){
-            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND))
-                try {
-                    throw new NotFoundException(String.format("Projection with id: %d not found.", clientId));
-                } catch (NotFoundException ex) {
-                    throw new RuntimeException(ex);
-                }
-        }
-        return null;
     }
 
     @Override
@@ -182,21 +147,11 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
         Integer cena = training.getPrice();
 
         // == Service 1 to check if the next session is free  ==
-        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getBookedNo(su.getClientId())).get();
-
-        Long gymId = training.getGym().getId();
-        if(!gymRepository.findById(gymId).isPresent()){
-            System.out.println("There is no gym by that id");
-        }
-        Gym gym = gymRepository.findById(gymId).get();
-        if(bookedNo == null) {
-            System.out.println("BookedNo body is empty");
-            return;
-        }
-        if ((bookedNo+1) % gym.getFreeSessionNo() == 0) {
+        Integer bookedNo = Retry.decorateSupplier(userServiceRetry, () -> getClientsBookedNo(user.getClientId())).get();
+        Gym gym = gymRepository.findById(ts.getGym().getId()).get();
+        if ((bookedNo + 1) % gym.getFreeSessionNo() == 0) {
             cena = 0;
         }
-
 
         // == Service 1: increment session count ==
         List<SignedUp> toSend = new ArrayList<>();
@@ -356,5 +311,22 @@ public class TrainingSessionServiceImpl implements TrainingSessionService {
 
         List<TrainingSession> tss = trainingSessionRepository.findAllByGymIdAndTrainingTypeNameAndDate(gymId, trainingType, date);
         return tss.stream().map(trainingSessionMapper::trainingSessionToResponseDto).collect(Collectors.toList());
+    }
+
+    private Integer getClientsBookedNo(Long clientId) {
+        ResponseEntity<Integer> responseEntity = null;
+
+        try {
+            responseEntity = reservationRestTemplate.exchange("/client/booked-no/?id=" + clientId,
+                    HttpMethod.GET, null, Integer.class);
+            return responseEntity.getBody();
+        } catch (HttpClientErrorException e) {
+            if(e.getStatusCode().equals(HttpStatus.NOT_FOUND))
+                throw new RuntimeException("Client not found");
+        } catch (Exception e) {
+            throw new RuntimeException("Error while communicating with user service");
+        }
+
+        return 0;
     }
 }

@@ -12,9 +12,10 @@ import java.time.Duration;
 public class RetryConfiguration {
 
     @Bean
-    public Retry userServiceRetry(){
-        RetryConfig retryConfig = RetryConfig.custom().maxAttempts(5).waitDuration(Duration.ofMillis(5000)).build();
-        RetryRegistry retryRegistry = RetryRegistry.of(retryConfig);
-        return retryRegistry.retry("userServiceRetry");
+    public Retry userServiceRetry() {
+        RetryConfig config = RetryConfig.custom().maxAttempts(5).waitDuration(Duration.ofMillis(5000)).build();
+        RetryRegistry registry = RetryRegistry.of(config);
+
+        return registry.retry("userServiceRetry");
     }
 }
