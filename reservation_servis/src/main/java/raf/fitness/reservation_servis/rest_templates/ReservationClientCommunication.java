@@ -19,7 +19,7 @@ public class ReservationClientCommunication {
     @Bean
     public RestTemplate reservationRestTemplate(){
         RestTemplate restTemplate = new RestTemplate();
-        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:8081/user-service"));
+        restTemplate.setUriTemplateHandler(new DefaultUriBuilderFactory("http://localhost:8081/"));
         restTemplate.setInterceptors(Collections.singletonList(new TokenInterceptor()));
         return restTemplate;
     }
