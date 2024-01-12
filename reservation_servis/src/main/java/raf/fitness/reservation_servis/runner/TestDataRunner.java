@@ -96,7 +96,7 @@ public class TestDataRunner implements CommandLineRunner {
 
     private Gym createGym1() {
         String name = "Gym_one";
-        String description = "Gym_one description";
+        String description = "This is a gym perfect for powerlifting, yoga and pilates.";
         Integer coachesCount = 10;
         Long managerId = 1L;            // long
         Integer freeSessionNo = 1;
@@ -107,7 +107,7 @@ public class TestDataRunner implements CommandLineRunner {
 
     private Gym createGym2() {
         String name = "Gym_two";
-        String description = "Gym_two description";
+        String description = "This is a gym perfect for powerlifting, calisthenics and yoga.";
         Integer coachesCount = 12;
         Long managerId = 2L;
         Integer freeSessionNo = 9;
