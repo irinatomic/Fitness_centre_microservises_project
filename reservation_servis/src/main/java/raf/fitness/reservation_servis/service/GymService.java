@@ -8,7 +8,7 @@ public interface GymService {
 
     Page<GymResponseDto> findAll(Pageable pageable);
 
-    GymResponseDto create(GymRequestDto gymRequestDto);
+    GymResponseDto create(GymRequestDto gymRequestDto, Long managerId);
 
     GymResponseDto update(Long id, Long managerId, GymRequestDto gymRequestDto);
 

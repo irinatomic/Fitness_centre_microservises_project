@@ -32,8 +32,8 @@ public class GymController {
     @ApiOperation(value = "Create a gym")
     @PostMapping
     @CheckSecurity(roles = {"MANAGER"})
-    public ResponseEntity<GymResponseDto> create(@RequestHeader("Authorization") String authorization, @RequestBody GymRequestDto gymRequestDto) {
-        GymResponseDto createdGym = gymService.create(gymRequestDto);
+    public ResponseEntity<GymResponseDto> create(@RequestHeader("Authorization") String authorization, @RequestBody GymRequestDto gymRequestDto, @RequestParam Long managerId) {
+        GymResponseDto createdGym = gymService.create(gymRequestDto, managerId);
         return new ResponseEntity<>(createdGym, HttpStatus.CREATED);
     }
 
@@ -41,12 +41,12 @@ public class GymController {
     @ApiImplicitParams({
             @ApiImplicitParam(name = "Authorization", value = "Bearer token", required = true, dataType = "string", paramType = "header")
     })
-    @PutMapping("/{id}")
+    @PutMapping("/{gymId}")
     @CheckSecurity(roles = {"MANAGER"})
-    public ResponseEntity<GymResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable Long id, @RequestBody GymRequestDto gymRequestDto) {
-        // get id from authorization string
-        Long managerId = AuthorizationHelper.extractIdFromToken(authorization);
-        GymResponseDto updatedGym = gymService.update(id, managerId, gymRequestDto);
+    public ResponseEntity<GymResponseDto> update(@RequestHeader("Authorization") String authorization, @PathVariable String gymId, @RequestParam String managerId, @RequestBody GymRequestDto gymRequestDto) {
+        Long managerIdL = Long.parseLong(managerId);
+        Long gymIdL = Long.parseLong(gymId);
+        GymResponseDto updatedGym = gymService.update(gymIdL, managerIdL, gymRequestDto);
         return new ResponseEntity<>(updatedGym, HttpStatus.OK);
     }
 

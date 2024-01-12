@@ -46,6 +46,11 @@ const routes = [
     component:() => import('@/views/user/ProfileView.vue')
   },
   {
+    path: '/manager-options',
+    name: 'manager-options',
+    component:() => import('@/views/ManagerOptionsView.vue')
+  },
+  {
     path: '/reserve/:timeSlotId', 
     name: 'reserve',
     component: () => import('@/views/filter/ReserveView.vue'),

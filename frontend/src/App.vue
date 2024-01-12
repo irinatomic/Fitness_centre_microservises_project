@@ -9,6 +9,7 @@
       <router-link v-if="!token" to="/login">Login</router-link> |
       <router-link v-if="!token" to="/register">Register</router-link>
       <router-link v-if="token" to="/profile">Profile</router-link> |
+      <router-link v-if="isRoleManager" to="/manager-options">Manager options</router-link> |
       <a v-if="token" href="#" @click="logout">Logout</a> 
     </nav>
     <router-view />
@@ -28,6 +29,9 @@ export default {
     },
     isRoleClientOrManager() {
       return this.user ? ['CLIENT', 'MANAGER'].includes(this.user.role) : false;
+    },
+    isRoleManager() {
+      return this.user ? this.user.role === 'MANAGER' : false;
     },
   },
   methods: {
