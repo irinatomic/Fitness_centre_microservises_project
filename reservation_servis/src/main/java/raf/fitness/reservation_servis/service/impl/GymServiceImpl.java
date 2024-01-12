@@ -10,6 +10,8 @@ import raf.fitness.reservation_servis.repository.GymRepository;
 import raf.fitness.reservation_servis.service.GymService;
 
 import javax.transaction.Transactional;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @Service
 @Transactional
@@ -29,8 +31,9 @@ public class GymServiceImpl implements GymService {
     }
 
     @Override
-    public GymResponseDto create(GymRequestDto gymRequestDto) {
+    public GymResponseDto create(GymRequestDto gymRequestDto, Long managerId) {
         Gym newGym = gymMapper.requestDtoToGym(gymRequestDto);
+        newGym.setManagerId(managerId);
         gymRepository.save(newGym);
         return gymMapper.gymToResponseDto(newGym);
     }
@@ -48,8 +51,11 @@ public class GymServiceImpl implements GymService {
         toChange.setDescription(gymRequestDto.getDescription());
         toChange.setCoachesCount(gymRequestDto.getCoachesCount());
         toChange.setFreeSessionNo(gymRequestDto.getFreeSessionNo());
-        toChange.setOpeningTime(gymRequestDto.getOpeningTime());
-        toChange.setClosingTime(gymRequestDto.getClosingTime());
+
+        // Map string hh:mm to LocalTime
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        toChange.setOpeningTime(LocalTime.parse(gymRequestDto.getOpeningTime(), formatter));
+        toChange.setClosingTime(LocalTime.parse(gymRequestDto.getClosingTime(), formatter));
         return gymMapper.gymToResponseDto(toChange);
     }
 

@@ -22,7 +22,7 @@ public class GymRequestDto {
     @NotNull
     private Integer freeSessionNo;
     @NotNull
-    private LocalTime openingTime;
+    private String openingTime;
     @NotNull
-    private LocalTime closingTime;
+    private String closingTime;
 }

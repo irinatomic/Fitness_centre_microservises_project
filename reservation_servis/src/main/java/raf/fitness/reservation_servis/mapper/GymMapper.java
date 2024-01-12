@@ -4,6 +4,9 @@ import org.springframework.stereotype.Component;
 import raf.fitness.reservation_servis.domain.Gym;
 import raf.fitness.reservation_servis.dto.gym.*;
 
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+
 @Component
 public class GymMapper {
 
@@ -13,8 +16,12 @@ public class GymMapper {
         gym.setDescription(requestDto.getDescription());
         gym.setCoachesCount(requestDto.getCoachesCount());
         gym.setFreeSessionNo(requestDto.getFreeSessionNo());
-        gym.setOpeningTime(requestDto.getOpeningTime());
-        gym.setClosingTime(requestDto.getClosingTime());
+
+        // Map string hh:mm to LocalTime
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm:ss");
+        gym.setOpeningTime(LocalTime.parse(requestDto.getOpeningTime(), formatter));
+        gym.setClosingTime(LocalTime.parse(requestDto.getClosingTime(), formatter));
+
         // not setting -> id, managerId
         return gym;
     }

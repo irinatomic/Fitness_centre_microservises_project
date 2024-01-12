@@ -406,14 +406,54 @@ export default new Vuex.Store({
         body: JSON.stringify(trainingSessionDto)
       })
 
-      if(response.status === 201) alert('Created!');
+      if (response.status === 201) alert('Created!');
       else alert('Not able to create a session');
     },
 
     setCurrentTimeSlot({ commit }, timeSlot) {
       console.log('commiting: ', timeSlot)
       commit('SET_CURRENT_TIME_SLOT', timeSlot);
-    }
+    },
+
+    // CREATE A NEW GYM
+    async createGym({ commit }, gym) {
+      gym.managerId = this.state.user.id;
+
+      const url = new URL('http://localhost:8762/reservation-service/gym');
+      url.searchParams.append('managerId', this.state.user.id);
+
+      const response = await fetch(url.toString(), {
+        method: 'POST',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(gym)
+      })
+      
+      if (response.status === 201) alert('Created!');
+      else alert('Not able to create a gym');
+    },
+
+    // UPDATE A GYM
+    async updateGym({ commit }, { gymId, gym }) {
+
+      console.log("GYM ID: ", gymId)
+      const url = new URL(`http://localhost:8762/reservation-service/gym/${gymId}`);
+      url.searchParams.append('managerId', this.state.user.id);
+
+      const response = await fetch(url.toString(), {
+        method: 'PUT',
+        headers: {
+          'Authorization': 'Bearer ' + this.state.token,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(gym)
+      })
+
+      if (response.status === 200) alert('Updated!');
+      else alert('Not able to update a gym');
+    },
   },
 
   getters: {
