@@ -1,6 +1,6 @@
 # Fitness Centre Microservices Project
 
-This project, developed for a University subject "Software Components," aims to create a microservices application for a fitness centre. The application architecture encompasses a frontend implemented in Vue.js, an API Gateway using Zuul, a service registry powered - Eureka, and three  microservices developed with Java Spring: <br>
+This project, developed for a University subject "Software Components," aims to create a microservices application for a fitness centre. The application architecture encompasses a frontend implemented in Vue.js, an API Gateway using Zuul, a service registry - Eureka, and three  microservices developed with Java Spring: <br>
 
 1. **User Service**
 2. **Training Reservation Service**
